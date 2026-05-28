@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import "./App.css";
 import LatentIntro, {
   type FilterOptions,
@@ -41,6 +41,7 @@ function App() {
   const [pointColorMode, setPointColorMode] =
     useState<PointColorMode>("local");
   const [filters, setFilters] = useState<PointFilters>(DEFAULT_FILTERS);
+  const [searchDraft, setSearchDraft] = useState(DEFAULT_FILTERS.search);
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     fieldOptions: [],
     careerOptions: [],
@@ -103,10 +104,34 @@ function App() {
   }
 
   function updateSearch(search: string) {
+    setSearchDraft(search);
+  }
+
+  function applySearch(search = searchDraft) {
     setFilters((currentFilters) => ({
       ...currentFilters,
-      search,
+      search: search.trim(),
     }));
+  }
+
+  function clearSearch() {
+    setSearchDraft("");
+    setFilters((currentFilters) => ({
+      ...currentFilters,
+      search: "",
+    }));
+  }
+
+  function handleSearchKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      applySearch();
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      clearSearch();
+    }
   }
 
   function toggleGender(gender: GenderOption) {
@@ -145,6 +170,7 @@ function App() {
   }
 
   function clearFilters() {
+    setSearchDraft("");
     setFilters(DEFAULT_FILTERS);
   }
 
@@ -160,6 +186,7 @@ function App() {
     filters.fields.length > 0 ||
     filters.careers.length > 0 ||
     filters.buckets.length > 0;
+  const isSearchPending = searchDraft.trim() !== filters.search.trim();
 
   const entrancePercent = loadProgress.total > 0
     ? Math.round((loadProgress.loaded / loadProgress.total) * 100)
@@ -314,11 +341,35 @@ function App() {
           <label className="filter-label">
             Search person, field, source, frame evidence, similar profiles, or masked text
             <input
-              value={filters.search}
+              value={searchDraft}
               onChange={(event) => updateSearch(event.target.value)}
+              onKeyDown={handleSearchKeyDown}
               placeholder='Try: Ada chemist, "named awards", mathematics...'
             />
+            <span className="filter-search-help">
+              Press Enter or Search to update the visible cluster.
+            </span>
           </label>
+
+          <div className="filter-search-actions">
+            <button
+              type="button"
+              className="filter-search-button"
+              disabled={!isSearchPending}
+              onClick={() => applySearch()}
+            >
+              Search
+            </button>
+
+            <button
+              type="button"
+              className="filter-search-button secondary"
+              disabled={searchDraft.trim().length === 0 && filters.search.trim().length === 0}
+              onClick={clearSearch}
+            >
+              Clear search
+            </button>
+          </div>
 
           <div className="filter-section">
             <div className="filter-section-title">Gender labels</div>
@@ -426,7 +477,7 @@ function App() {
 
           <button
             className="clear-filters-button"
-            disabled={!hasActiveFilters}
+            disabled={!hasActiveFilters && searchDraft.trim().length === 0}
             onClick={clearFilters}
           >
             Clear filters

@@ -1244,24 +1244,36 @@ function NearbyBiographyBar({
   womanPercent: number;
   label?: string;
 }) {
-  const clamped = Math.max(0, Math.min(100, Math.round(womanPercent)));
-  const percentClass = clamped >= 50 ? "woman" : "man";
+  const womanShare = Math.max(0, Math.min(100, Math.round(womanPercent)));
+  const manShare = 100 - womanShare;
+  const dominantSide: GenderOption = womanShare >= manShare ? "woman" : "man";
+  const dominantPercent = Math.max(womanShare, manShare);
+  const dominantLabel = dominantSide === "woman" ? "woman" : "man";
 
   return (
-    <div className="nearby-biography-readout" style={{ "--nearby-woman-pct": `${clamped}%` } as CSSProperties}>
-      <div className={`nearby-big-percent ${percentClass}`}>{clamped}%</div>
+    <div className="nearby-biography-readout" style={{ "--nearby-woman-pct": `${womanShare}%` } as CSSProperties}>
+      <div className={`nearby-big-percent ${dominantSide}`}>
+        <strong>{dominantPercent}%</strong>
+        <span>{dominantLabel}</span>
+      </div>
       <div className="nearby-bar-block">
         <div className="nearby-label-row">
           <span>{label}</span>
-          <strong>{clamped}% woman / {100 - clamped}% man</strong>
+          <strong>{womanShare}% woman share · {manShare}% man share</strong>
         </div>
-        <div className="nearby-gradient-track" aria-label={`${label}: ${clamped}% woman and ${100 - clamped}% man`}>
+        <div
+          className="nearby-gradient-track"
+          aria-label={`${label}: marker shows ${womanShare}% woman share and ${manShare}% man share`}
+        >
           <span className="nearby-gradient-marker" />
         </div>
         <div className="nearby-axis-labels">
-          <span>man-associated side</span>
-          <span>woman-associated side</span>
+          <span>0% woman / mostly man</span>
+          <span>100% woman / mostly woman</span>
         </div>
+        <p className={`nearby-marker-note ${dominantSide}`}>
+          The marker shows <strong>woman share</strong> on the bar; the large number shows the dominant nearby label.
+        </p>
       </div>
     </div>
   );
