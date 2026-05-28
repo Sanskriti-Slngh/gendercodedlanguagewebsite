@@ -3909,3 +3909,248 @@
     max-width: min(310px, 82vw);
   }
 }
+
+/* ---------- device performance warning ---------- */
+.device-warning {
+  position: fixed;
+  left: 50%;
+  top: 16px;
+  transform: translateX(-50%);
+  z-index: 60;
+
+  width: min(720px, calc(100vw - 28px));
+  padding: 11px 16px;
+
+  border: 1px solid rgba(7, 31, 69, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 248, 230, 0.94);
+  color: #4a3420;
+
+  font-family: "Times New Roman", Times, serif;
+  font-size: clamp(0.86rem, 1vw, 1rem);
+  line-height: 1.28;
+  text-align: center;
+
+  box-shadow: 0 14px 38px rgba(7, 31, 69, 0.13);
+  backdrop-filter: blur(14px);
+  pointer-events: none;
+}
+
+.device-warning strong {
+  color: #071f45;
+}
+
+@media (max-width: 760px) {
+  .device-warning {
+    top: 10px;
+    border-radius: 20px;
+    padding: 10px 12px;
+    font-size: 0.88rem;
+  }
+}
+
+/* Keep top warning from visually fighting with selected point overlay. */
+.home-page.has-selected-point .device-warning {
+  opacity: 0;
+}
+
+/* ---------- entrance screen: fit same text on any screen ---------- */
+
+.entrance-overlay {
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  padding: clamp(8px, 2vmin, 26px);
+}
+
+.entrance-overlay::before {
+  inset: clamp(8px, 1.5vmin, 22px);
+}
+
+.entrance-card {
+  width: min(940px, 92vw);
+  max-height: calc(100svh - clamp(18px, 5vmin, 52px));
+  display: grid;
+  grid-template-rows: auto auto auto auto auto auto;
+  align-content: center;
+}
+
+/* Use viewport HEIGHT too, not just viewport width */
+.entrance-eyebrow {
+  margin-bottom: clamp(5px, 1.1vmin, 14px);
+  font-size: clamp(0.68rem, min(1vw, 1.7vh), 0.95rem);
+}
+
+.entrance-title {
+  font-size: clamp(2.4rem, min(7.2vw, 12vh), 6.1rem);
+  line-height: 0.84;
+}
+
+.entrance-purpose {
+  width: min(800px, 90vw);
+  margin-top: clamp(8px, 1.8vmin, 24px);
+  font-size: clamp(0.82rem, min(1.65vw, 2.45vh), 1.45rem);
+  line-height: clamp(1.12, 2vh, 1.28);
+}
+
+.entrance-mini-grid {
+  width: min(880px, 90vw);
+  margin-top: clamp(10px, 2.4vmin, 30px);
+  gap: clamp(7px, 1.2vmin, 16px);
+}
+
+.entrance-mini-card {
+  min-height: clamp(64px, 13vh, 112px);
+  padding: clamp(8px, 1.45vmin, 18px);
+  border-radius: clamp(18px, 2.6vmin, 28px);
+  gap: clamp(3px, 0.8vmin, 8px);
+}
+
+.entrance-mini-card strong {
+  font-size: clamp(0.82rem, min(1.25vw, 2.05vh), 1.2rem);
+  line-height: 1.08;
+}
+
+.entrance-mini-card span {
+  font-size: clamp(0.72rem, min(1.05vw, 1.75vh), 1.02rem);
+  line-height: 1.16;
+}
+
+.entrance-progress {
+  width: min(500px, 70vw);
+  height: clamp(6px, 1.25vmin, 11px);
+  margin-top: clamp(10px, 2.2vmin, 30px);
+}
+
+.entrance-explore-button {
+  margin-top: clamp(8px, 1.8vmin, 22px);
+  min-width: clamp(120px, 16vw, 160px);
+  padding: clamp(7px, 1.25vmin, 12px) clamp(18px, 3vmin, 28px);
+  font-size: clamp(0.88rem, min(1.25vw, 1.95vh), 1.2rem);
+}
+
+.entrance-status {
+  margin-top: clamp(5px, 1vmin, 12px);
+  font-size: clamp(0.72rem, min(1vw, 1.55vh), 1.02rem);
+}
+
+/* Short laptop screens */
+@media (max-height: 760px) {
+  .entrance-card {
+    width: min(900px, 90vw);
+  }
+
+  .entrance-title {
+    font-size: clamp(2.2rem, min(6.4vw, 10.5vh), 4.9rem);
+  }
+
+  .entrance-purpose {
+    margin-top: 8px;
+    font-size: clamp(0.78rem, min(1.25vw, 1.9vh), 1.08rem);
+    line-height: 1.14;
+  }
+
+  .entrance-mini-grid {
+    margin-top: 10px;
+  }
+
+  .entrance-mini-card {
+    min-height: clamp(58px, 11vh, 84px);
+    padding: 8px 11px;
+  }
+
+  .entrance-progress {
+    margin-top: 10px;
+  }
+
+  .entrance-explore-button {
+    margin-top: 8px;
+    padding-block: 7px;
+  }
+
+  .entrance-status {
+    margin-top: 5px;
+  }
+}
+
+/* Very short screens */
+@media (max-height: 620px) {
+  .entrance-title {
+    font-size: clamp(2rem, min(5.6vw, 9.2vh), 4.1rem);
+  }
+
+  .entrance-purpose {
+    width: min(780px, 88vw);
+    font-size: clamp(0.72rem, min(1.08vw, 1.65vh), 0.95rem);
+    line-height: 1.1;
+  }
+
+  .entrance-mini-card {
+    min-height: 54px;
+    padding: 7px 10px;
+  }
+
+  .entrance-mini-card strong {
+    font-size: clamp(0.76rem, 1.6vh, 0.96rem);
+  }
+
+  .entrance-mini-card span {
+    font-size: clamp(0.68rem, 1.42vh, 0.86rem);
+    line-height: 1.1;
+  }
+}
+
+/* Phones: keep all text, but compress spacing */
+@media (max-width: 760px) {
+  .entrance-overlay {
+    align-items: flex-start;
+    padding: 12px 14px;
+  }
+
+  .entrance-card {
+    width: min(94vw, 540px);
+    max-height: none;
+    align-content: start;
+  }
+
+  .entrance-title {
+    font-size: clamp(2.5rem, min(14vw, 10vh), 4.6rem);
+  }
+
+  .entrance-purpose {
+    width: min(90vw, 520px);
+    margin-top: 10px;
+    font-size: clamp(0.86rem, min(3.8vw, 2.05vh), 1.08rem);
+    line-height: 1.15;
+  }
+
+  .entrance-mini-grid {
+    grid-template-columns: 1fr;
+    width: min(90vw, 520px);
+    margin-top: 12px;
+    gap: 8px;
+  }
+
+  .entrance-mini-card {
+    min-height: auto;
+    padding: 9px 12px;
+    border-radius: 18px;
+  }
+
+  .entrance-mini-card strong {
+    font-size: clamp(0.9rem, 3.5vw, 1.05rem);
+  }
+
+  .entrance-mini-card span {
+    font-size: clamp(0.78rem, 3.2vw, 0.95rem);
+    line-height: 1.14;
+  }
+
+  .entrance-progress {
+    margin-top: 12px;
+  }
+
+  .entrance-explore-button {
+    margin-top: 10px;
+  }
+}

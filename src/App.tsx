@@ -241,10 +241,11 @@ function App() {
             <h1 className="entrance-title">Coded Language</h1>
 
             <p className="entrance-purpose">
-              This exhibit looks at how public biographies describe people. Each dot
-              is one biography. Dots that are close together use similar wording. As
-              you explore, you can see which kinds of language appear more often around
-              women-labeled or men-labeled biographies in this dataset.
+              This exhibit looks at how public biographies describe women vs men in academia. 
+              Each dot is one biography. Dots that are close together are similarly worded. As
+              you explore, you can see which kinds of patterns of language appear more often around
+              women-labeled or men-labeled biographies in this dataset uncovering the deeper 
+              issue of gender bias in academia.
             </p>
 
             <div className="entrance-mini-grid" aria-label="How to read the exhibit">
@@ -254,11 +255,11 @@ function App() {
               </div>
               <div className="entrance-mini-card">
                 <strong>2. Open a biography</strong>
-                <span>Click any dot to see the person, similar profiles, and the strongest visible frames in the text.</span>
+                <span>Click any dot to see the person, similar profiles, and the strongest woman/man text patterns in the text.</span>
               </div>
               <div className="entrance-mini-card">
                 <strong>3. Ask what changes</strong>
-                <span>Recompute the view to see how patterns shift within the biographies currently on screen.</span>
+                <span>Recompute the view on different subsets of data to see how patterns shift within the biographies currently on screen.</span>
               </div>
             </div>
 

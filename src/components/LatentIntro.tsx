@@ -11,6 +11,12 @@ import {
 import Papa from "papaparse";
 import * as THREE from "three";
 
+import {
+  getDeviceMode,
+  limitPointsForDevice,
+  type DeviceMode,
+} from "../utils/devicePerformance";
+
 export type PointColorMode = "raw" | "local";
 export type GenderOption = "woman" | "man";
 export type TimePeriodFilter =
@@ -230,6 +236,12 @@ type LayoutScale = {
   sceneScale: number;
 };
 
+type DeviceNotice = {
+  reason: string;
+  displayedPoints: number;
+  totalPoints: number;
+};
+
 type SelectedCirclePanel =
   | "summary"
   | "pattern"
@@ -271,14 +283,26 @@ function publicAssetPath(relativePath: string): string {
   return `${baseUrl.replace(/\/?$/, "/")}${relativePath.replace(/^\//, "")}`;
 }
 
-function csvCandidates(fileStem: string): string[] {
-  return [
-    `data/${fileStem}.csv.gz`,
-    `data/${fileStem}.csv`,
-  ].map(publicAssetPath);
+function csvCandidates(fileStem: string, preferMobile = false): string[] {
+  const stems = preferMobile
+    ? [`${fileStem}_mobile`, fileStem]
+    : [fileStem];
+
+  return stems.flatMap((stem) =>
+    [
+      `data/${stem}.csv.gz`,
+      `data/${stem}.csv`,
+    ].map(publicAssetPath)
+  );
 }
 
-const CSV_PATHS = csvCandidates("mpnet_local_3d_website_points");
+function pointCsvPathsForDevice(deviceMode: DeviceMode): string[] {
+  return csvCandidates(
+    "mpnet_local_3d_website_points",
+    deviceMode.isLimitedDevice
+  );
+}
+
 const EXPLANATIONS_PATHS = csvCandidates("point_explanations_data_driven_buckets");
 const POINT_FRAMES_PATHS = csvCandidates("point_frames_and_similar_profiles");
 const FRAME_DEFINITIONS_PATHS = csvCandidates("public_frame_definitions");
@@ -1992,6 +2016,9 @@ export default function LatentIntro({
   const mapInteractionEndTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Locked after first non-empty point load — never recomputed so positions never shift
   const layoutScaleRef = useRef<LayoutScale | null>(null);
+  
+  const [deviceMode] = useState<DeviceMode>(() => getDeviceMode());
+  const [deviceNotice, setDeviceNotice] = useState<DeviceNotice | null>(null);
 
   function startMapInteraction() {
     if (mapInteractionEndTimeoutRef.current) { clearTimeout(mapInteractionEndTimeoutRef.current); mapInteractionEndTimeoutRef.current = null; }
@@ -2009,6 +2036,10 @@ export default function LatentIntro({
   const visiblePoints = useMemo(() => points.filter((p) => pointMatchesFilters(p, filters)), [points, filters]);
   // Read from the locked ref — not recomputed when enrichment merges in
   const layoutScale = layoutScaleRef.current;
+
+  const canvasDpr: number | [number, number] = deviceMode.isLimitedDevice
+    ? 1
+    : [1, 2];
 
   const exploredLocalInfo = useMemo(() => {
     if (!selectedPoint) return null;
@@ -2087,7 +2118,7 @@ export default function LatentIntro({
     
       try {
         // Fetch the CSV text first (network; progress bar shows "Preparing")
-        const pointCsvText = await fetchCsvText(CSV_PATHS, true);
+        const pointCsvText = await fetchCsvText(pointCsvPathsForDevice(deviceMode), true);
         if (!pointCsvText) throw new Error("Point CSV loaded as empty.");
     
         // Yield a frame so "Preparing latent space" actually renders before the
@@ -2110,13 +2141,31 @@ export default function LatentIntro({
         const basePoints = parsedPoints.data
           .map(parseCsvRowToBasePoint)
           .filter((p): p is BioPoint => p !== null);
-    
+
+        const totalPointCount = basePoints.length;
+
+        const deviceLimitedBasePoints = deviceMode.isLimitedDevice
+          ? limitPointsForDevice(basePoints, deviceMode.maxPoints)
+          : basePoints;
+
+        if (deviceMode.isLimitedDevice && deviceLimitedBasePoints.length < totalPointCount) {
+          setDeviceNotice({
+            reason: deviceMode.reason,
+            displayedPoints: deviceLimitedBasePoints.length,
+            totalPoints: totalPointCount,
+          });
+        } else {
+          setDeviceNotice(null);
+        }
+
+        // Keep the full-space scale if the full file loaded.
+        // This prevents the limited sample from stretching into a fake map shape.
         if (!layoutScaleRef.current) {
           layoutScaleRef.current = getLayoutScale(basePoints);
         }
-    
-        const randomizedBasePoints = randomizePointOrder(basePoints);
-    
+
+        const randomizedBasePoints = randomizePointOrder(deviceLimitedBasePoints);
+
         onLoadProgressChange?.({
           loaded: randomizedBasePoints.length,
           total: randomizedBasePoints.length,
@@ -2177,11 +2226,11 @@ export default function LatentIntro({
 
     loadPoints();
     return () => { isCancelled = true; };
-  }, [onFilterOptionsChange, onLatentReadyChange, onLoadProgressChange]);
+  }, [deviceMode, onFilterOptionsChange, onLatentReadyChange, onLoadProgressChange]);
 
   return (
     <div className="latent-stage">
-      <Canvas camera={{ position: [0, 1.3, 8.5], fov: 45 }} dpr={[1, 2]}>
+      <Canvas camera={{ position: [0, 1.3, 8.5], fov: 45 }} dpr={canvasDpr}>
         <RaycasterSettings />
         <color attach="background" args={["#f3f8ff"]} />
         <ambientLight intensity={0.9} />
@@ -2217,6 +2266,16 @@ export default function LatentIntro({
           onEnd={endMapInteractionSoon}
         />
       </Canvas>
+
+      {deviceNotice && (
+        <div className="device-warning" role="status" aria-live="polite">
+          <strong>Lighter view active.</strong>{" "}
+          {deviceNotice.reason} Showing{" "}
+          {deviceNotice.displayedPoints.toLocaleString()} of{" "}
+          {deviceNotice.totalPoints.toLocaleString()} biographies. Use a stronger device
+          to see the full map.
+        </div>
+      )}
 
       {isEntered && !selectedPoint && (
         <aside
