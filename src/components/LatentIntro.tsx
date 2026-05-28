@@ -266,10 +266,22 @@ type NeighborSearchNode = {
   right: NeighborSearchNode | null;
 };
 
-const CSV_PATH = "/data/mpnet_local_3d_website_points.csv.gz";
-const EXPLANATIONS_PATH = "/data/point_explanations_data_driven_buckets.csv.gz";
-const POINT_FRAMES_PATH = "/data/point_frames_and_similar_profiles.csv.gz";
-const FRAME_DEFINITIONS_PATH = "/data/public_frame_definitions.csv";
+function publicAssetPath(relativePath: string): string {
+  const baseUrl = import.meta.env.BASE_URL || "/";
+  return `${baseUrl.replace(/\/?$/, "/")}${relativePath.replace(/^\//, "")}`;
+}
+
+function csvCandidates(fileStem: string): string[] {
+  return [
+    `data/${fileStem}.csv.gz`,
+    `data/${fileStem}.csv`,
+  ].map(publicAssetPath);
+}
+
+const CSV_PATHS = csvCandidates("mpnet_local_3d_website_points");
+const EXPLANATIONS_PATHS = csvCandidates("point_explanations_data_driven_buckets");
+const POINT_FRAMES_PATHS = csvCandidates("point_frames_and_similar_profiles");
+const FRAME_DEFINITIONS_PATHS = csvCandidates("public_frame_definitions");
 
 function toNumber(value: string | undefined): number | null {
   const n = Number(value);
@@ -1645,15 +1657,52 @@ function SelectedPointOverlay({
   );
 }
 
-async function fetchCsvText(path: string, required: boolean): Promise<string | null> {
-  const response = await fetch(path);
-  if (!response.ok) {
-    const msg = `Failed to load CSV at ${path}: ${response.status}`;
-    if (required) throw new Error(msg);
-    console.warn(msg);
-    return null;
+async function decodeMaybeGzipText(response: Response, path: string): Promise<string> {
+  if (!path.endsWith(".gz")) return response.text();
+
+  const encoding = response.headers.get("content-encoding")?.toLowerCase() ?? "";
+  if (encoding.includes("gzip")) {
+    // Browser already handles gzip transfer encoding for fetch().
+    return response.text();
   }
-  return response.text();
+
+  const streamCtor = (globalThis as { DecompressionStream?: new (format: string) => TransformStream }).DecompressionStream;
+  if (!streamCtor) {
+    return response.text();
+  }
+
+  const responseClone = response.clone();
+
+  try {
+    const compressed = await response.arrayBuffer();
+    const decompressor = new streamCtor("gzip");
+    const decompressedStream = new Blob([compressed]).stream().pipeThrough(decompressor);
+    return new Response(decompressedStream).text();
+  } catch {
+    // Fall back to text from an untouched clone if manual gunzip fails.
+    return responseClone.text();
+  }
+}
+
+async function fetchCsvText(paths: string[], required: boolean): Promise<string | null> {
+  let lastErrorMessage = "";
+
+  for (const path of paths) {
+    try {
+      const response = await fetch(path);
+      if (!response.ok) {
+        lastErrorMessage = `Failed to load CSV at ${path}: ${response.status}`;
+        continue;
+      }
+      return await decodeMaybeGzipText(response, path);
+    } catch (error) {
+      lastErrorMessage = `Failed to load CSV at ${path}: ${error instanceof Error ? error.message : String(error)}`;
+    }
+  }
+
+  if (required) throw new Error(lastErrorMessage || "Failed to load required CSV.");
+  if (lastErrorMessage) console.warn(lastErrorMessage);
+  return null;
 }
 
 function getScenePositionForPoint(point: BioPoint, layoutScale: LayoutScale | null): THREE.Vector3 {
@@ -1831,9 +1880,9 @@ async function loadEnrichmentMaps(): Promise<{
   frameInfoMap: Map<string, PointFrameInfo>;
 }> {
   const [explanationCsvText, pointFramesCsvText, frameDefinitionsCsvText] = await Promise.all([
-    fetchCsvText(EXPLANATIONS_PATH, false),
-    fetchCsvText(POINT_FRAMES_PATH, false),
-    fetchCsvText(FRAME_DEFINITIONS_PATH, false),
+    fetchCsvText(EXPLANATIONS_PATHS, false),
+    fetchCsvText(POINT_FRAMES_PATHS, false),
+    fetchCsvText(FRAME_DEFINITIONS_PATHS, false),
   ]);
 
   const parsedExplanations = explanationCsvText
@@ -2026,7 +2075,7 @@ export default function LatentIntro({
     
       try {
         // Fetch the CSV text first (network; progress bar shows "Preparing")
-        const pointCsvText = await fetchCsvText(CSV_PATH, true);
+        const pointCsvText = await fetchCsvText(CSV_PATHS, true);
         if (!pointCsvText) throw new Error("Point CSV loaded as empty.");
     
         // Yield a frame so "Preparing latent space" actually renders before the
