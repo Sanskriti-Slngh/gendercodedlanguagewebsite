@@ -297,10 +297,14 @@ function csvCandidates(fileStem: string, preferMobile = false): string[] {
 }
 
 function pointCsvPathsForDevice(deviceMode: DeviceMode): string[] {
-  return csvCandidates(
-    "mpnet_local_3d_website_points",
-    deviceMode.isLimitedDevice
-  );
+  if (deviceMode.isLimitedDevice) {
+    return [
+      "data/mpnet_local_3d_website_points_mobile.csv.gz",
+      "data/mpnet_local_3d_website_points_mobile.csv",
+    ].map(publicAssetPath);
+  }
+
+  return csvCandidates("mpnet_local_3d_website_points");
 }
 
 const EXPLANATIONS_PATHS = csvCandidates("point_explanations_data_driven_buckets");
@@ -2020,6 +2024,16 @@ export default function LatentIntro({
   const [deviceMode] = useState<DeviceMode>(() => getDeviceMode());
   const [deviceNotice, setDeviceNotice] = useState<DeviceNotice | null>(null);
 
+  useEffect(() => {
+    if (deviceMode.isLimitedDevice) {
+      setDeviceNotice({
+        reason: deviceMode.reason,
+        displayedPoints: deviceMode.maxPoints,
+        totalPoints: deviceMode.maxPoints,
+      });
+    }
+  }, [deviceMode]);
+
   function startMapInteraction() {
     if (mapInteractionEndTimeoutRef.current) { clearTimeout(mapInteractionEndTimeoutRef.current); mapInteractionEndTimeoutRef.current = null; }
     setIsMapInteracting(true);
@@ -2173,7 +2187,14 @@ export default function LatentIntro({
           isReady: false,
         });
 
-        const { explanationMap, frameDefinitionMap, frameInfoMap } = await loadEnrichmentMaps();
+        const { explanationMap, frameDefinitionMap, frameInfoMap } =
+          deviceMode.isLimitedDevice
+            ? {
+                explanationMap: new Map<string, PointExplanation>(),
+                frameDefinitionMap: new Map<string, FrameDefinition>(),
+                frameInfoMap: new Map<string, PointFrameInfo>(),
+              }
+            : await loadEnrichmentMaps();
         if (isCancelled) return;
     
         onLoadProgressChange?.({
