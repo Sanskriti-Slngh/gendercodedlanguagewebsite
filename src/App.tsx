@@ -54,6 +54,8 @@ function App() {
   const [hasEntrancePlayed, setHasEntrancePlayed] = useState(false);
   const [hasPressedExplore, setHasPressedExplore] = useState(false);
   const [isEntranceDismissed, setIsEntranceDismissed] = useState(false);
+  const [isFaqOpen, setIsFaqOpen] = useState(false);
+  const [hasDismissedFaqGlow, setHasDismissedFaqGlow] = useState(false);
   const exploreExitTimeoutRef = useRef<number | null>(null);
   const [loadProgress, setLoadProgress] = useState<LatentLoadProgress>({
     loaded: 0,
@@ -95,11 +97,16 @@ function App() {
     }, 650);
   }
 
-  function enterSite() {
+  function handlePagePointerDownCapture() {
     if (!isHomeIntroReady) return;
 
     if (!isEntered) {
       setIsEntered(true);
+      return;
+    }
+
+    if (!hasDismissedFaqGlow) {
+      setHasDismissedFaqGlow(true);
     }
   }
 
@@ -216,7 +223,7 @@ function App() {
       } ${isLatentReady ? "is-latent-ready" : "is-loading-latent"} ${
         isHomeIntroReady ? "is-home-intro-ready" : "is-entrance-active"
       } ${hasPressedExplore ? "has-pressed-explore" : ""}`}
-      onPointerDown={enterSite}
+      onPointerDownCapture={handlePagePointerDownCapture}
     >
       <LatentIntro
         isEntered={isEntered}
@@ -241,11 +248,11 @@ function App() {
             <h1 className="entrance-title">Coded Language</h1>
 
             <p className="entrance-purpose">
-              This exhibit looks at how public biographies describe women vs men in academia. 
+              This exhibit looks at how public biographies describe women vs men in academia.
               Each dot is one biography. Dots that are close together are similarly worded. As
-              you explore, you can see which kinds of patterns of language appear more often around
-              women-labeled or men-labeled biographies in this dataset uncovering the deeper 
-              issue of gender bias in academia.
+              you explore, you can see which kinds of language patterns appear more often around
+              women-labeled or men-labeled biographies, revealing how gender bias can appear
+              through repeated patterns of public language.
             </p>
 
             <div className="entrance-mini-grid" aria-label="How to read the exhibit">
@@ -325,13 +332,307 @@ function App() {
         </p>
       </div>
 
-      {!isPointSelected && (
-        <aside
-          className="explore-filters"
-          aria-label="Explore biography filters"
+      {isFaqOpen && (
+        <section
+          className="faq-overlay"
+          aria-label="Project explanation"
           onPointerDown={(event) => event.stopPropagation()}
           onClick={(event) => event.stopPropagation()}
         >
+          <div className="faq-panel">
+            <div className="faq-header">
+              <div>
+                <p className="faq-eyebrow">How to read this project</p>
+                <h2>What is Coded Language?</h2>
+              </div>
+
+              <button
+                type="button"
+                className="faq-close-button"
+                onClick={() => setIsFaqOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="faq-sections">
+              <article className="faq-section">
+                <h3>What is the purpose of this website?</h3>
+                <p>This website asks a simple question:</p>
+                <p><strong>Are public biographies written differently for women and men?</strong></p>
+                <p>
+                  A biography is not just a list of facts. It also chooses what to emphasize. One person
+                  might be described through awards, leadership, invention, and authority. Another person
+                  might be described through teaching, service, advocacy, care, or being &ldquo;the first
+                  woman&rdquo; to do something.
+                </p>
+                <p>
+                  This website turns many biographies into dots on a map so we can look for patterns. Each
+                  dot is one biography. If two dots are close together, it means those biographies use
+                  similar wording.
+                </p>
+                <p>
+                  The goal is not to judge one person or one biography as &ldquo;bad.&rdquo; The goal is to
+                  look across many biographies and ask:
+                </p>
+                <p>
+                  <strong>
+                    What kinds of language appear more often around women-labeled biographies? What kinds
+                    of language appear more often around men-labeled biographies?
+                  </strong>
+                </p>
+              </article>
+
+              <article className="faq-section">
+                <h3>Who would want to explore this website?</h3>
+                <p>This website is for anyone interested in how language shapes public memory.</p>
+                <p>That could include:</p>
+                <ul className="faq-list">
+                  <li>students studying gender, media, history, or data</li>
+                  <li>teachers who want to show how bias can appear in writing</li>
+                  <li>researchers interested in representation</li>
+                  <li>people curious about Wikipedia-style biographies</li>
+                  <li>anyone who wants to understand how women and men are framed differently in public information</li>
+                </ul>
+                <p>
+                  You do not need to know coding, machine learning, or statistics to use this site. The map
+                  is meant to help people visually explore patterns that would be hard to notice by reading
+                  hundreds or thousands of biographies one by one.
+                </p>
+              </article>
+
+              <article className="faq-section">
+                <h3>How can I get access to the data CSV?</h3>
+                <p>
+                  If you want the data, you can access the public CSV files through the project&apos;s
+                  GitHub repository. The <code>public/data/</code> folder contains all the files:
+                </p>
+                <div className="faq-data-table" role="region" aria-label="Available data files">
+                  <div className="faq-data-row">
+                    <a
+                      href="https://github.com/Sanskriti-Slngh/Coded-Language-How-Gender-Shapes-Biography/blob/main/public/data/mpnet_local_3d_website_points.csv.gz"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      mpnet_local_3d_website_points.csv.gz
+                    </a>
+                    <span>All data points with info about the (un)masked biographies + gender (79,680 points)</span>
+                  </div>
+                  <div className="faq-data-row">
+                    <a
+                      href="https://github.com/Sanskriti-Slngh/Coded-Language-How-Gender-Shapes-Biography/blob/main/public/data/mpnet_local_3d_website_points_mobile.csv.gz"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      mpnet_local_3d_website_points_mobile.csv.gz
+                    </a>
+                    <span>Smaller section of data (1,000 points)</span>
+                  </div>
+                  <div className="faq-data-row">
+                    <a
+                      href="https://github.com/Sanskriti-Slngh/Coded-Language-How-Gender-Shapes-Biography/blob/main/public/data/point_explanations_data_driven_buckets.csv.gz"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      point_explanations_data_driven_buckets.csv.gz
+                    </a>
+                    <span>Words/phrases that push the biography toward its real label of man or woman</span>
+                  </div>
+                  <div className="faq-data-row">
+                    <a
+                      href="https://github.com/Sanskriti-Slngh/Coded-Language-How-Gender-Shapes-Biography/blob/main/public/data/point_frames_and_similar_profiles.csv.gz"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      point_frames_and_similar_profiles.csv.gz
+                    </a>
+                    <span>Strongest frames visible in the biography regardless of real gender</span>
+                  </div>
+                  <div className="faq-data-row">
+                    <a
+                      href="https://github.com/Sanskriti-Slngh/Coded-Language-How-Gender-Shapes-Biography/blob/main/public/data/public_frame_definitions.csv"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      public_frame_definitions.csv
+                    </a>
+                    <span>Definitions of all available frames in the data</span>
+                  </div>
+                </div>
+                <p>
+                  If you&apos;d like the files that helped develop this data, please reach out directly
+                  via email:{" "}
+                  <a href="mailto:sanskritisingh0914@gmail.com">sanskritisingh0914@gmail.com</a>
+                </p>
+              </article>
+
+              <article className="faq-section">
+                <h3>What are the findings?</h3>
+                <p>
+                  The main finding is that the biographies do not appear randomly written. There are
+                  repeated patterns in how people are described.
+                </p>
+                <p>
+                  In this dataset, some language patterns appear more often around women-labeled
+                  biographies, and some appear more often around men-labeled biographies.
+                </p>
+                <p>For example, women-labeled biographies more often show frames connected to:</p>
+                <ul className="faq-list">
+                  <li>current research focus</li>
+                  <li>education and teaching</li>
+                  <li>care, health, psychology, or social support</li>
+                  <li>advocacy, justice, access, and inclusion</li>
+                  <li>being a &ldquo;first&rdquo; or representing participation in a field</li>
+                </ul>
+                <p>Men-labeled biographies more often show frames connected to:</p>
+                <ul className="faq-list">
+                  <li>senior titles and prestige</li>
+                  <li>fellowships, academies, and awards</li>
+                  <li>leadership and command roles</li>
+                  <li>technical authority</li>
+                  <li>older historical legacy</li>
+                  <li>business, state, war, or institutional power</li>
+                </ul>
+                <p>
+                  This does <strong>not</strong> mean every woman is written one way or every man is written
+                  another way. It also does <strong>not</strong> prove that any individual author intended
+                  to be biased.
+                </p>
+                <p>Instead, the finding is about repeated public writing patterns:</p>
+                <p>
+                  <strong>
+                    When many biographies are placed side by side, gendered patterns of recognition,
+                    authority, care, service, and legacy begin to appear.
+                  </strong>
+                </p>
+              </article>
+
+              <article className="faq-section">
+                <h3>What is Raw vs. Local? Why do they exist?</h3>
+                <p>The map has two ways to color the dots.</p>
+
+                <h4 className="faq-subheading">Raw view</h4>
+                <p>Raw view shows the original gender label of each biography.</p>
+                <p>In this view:</p>
+                <ul className="faq-list">
+                  <li>one color represents women-labeled biographies</li>
+                  <li>one color represents men-labeled biographies</li>
+                </ul>
+                <p>
+                  This helps you see where women-labeled and men-labeled biographies appear in the overall
+                  map.
+                </p>
+                <p>
+                  <strong>Raw view answers:</strong> Where are the women-labeled and men-labeled biographies
+                  in the full map?
+                </p>
+
+                <h4 className="faq-subheading">Local view</h4>
+                <p>Local view asks a slightly different question.</p>
+                <p>
+                  Instead of only asking what one dot&apos;s label is, it looks at the dots around it.
+                </p>
+                <p>
+                  So if a biography is surrounded mostly by women-labeled biographies, that area may appear
+                  more woman-associated. If it is surrounded mostly by men-labeled biographies, that area may
+                  appear more man-associated.
+                </p>
+                <p>
+                  <strong>Local view answers:</strong> What kind of gender pattern exists in this
+                  neighborhood of similar biographies?
+                </p>
+                <p>
+                  In a perfect world our map would be gray, as most biographies would have an equal number
+                  of men and women in their surrounding space.
+                </p>
+
+                <h4 className="faq-subheading">Why have both?</h4>
+                <p>Raw view tells you the actual labels.</p>
+                <p>Local view helps you see patterns in the surrounding language.</p>
+                <p>
+                  For example, a woman-labeled biography might appear in a mostly man-associated
+                  neighborhood if its wording is similar to many men-labeled biographies. Or a man-labeled
+                  biography might appear in a woman-associated neighborhood if its wording uses frames
+                  more common around women-labeled biographies.
+                </p>
+                <p>Together, Raw and Local help you separate two questions:</p>
+                <p>
+                  <strong>Who is labeled woman or man?</strong>
+                  <br />
+                  and
+                  <br />
+                  <strong>What kinds of language surround this biography?</strong>
+                </p>
+              </article>
+
+              <article className="faq-section">
+                <h3>What should I look for?</h3>
+                <p>Start by looking for clusters.</p>
+                <p>
+                  A cluster is a group of dots that sit close together. That means the biographies in that
+                  area use similar language.
+                </p>
+                <p>Then ask:</p>
+                <ul className="faq-list">
+                  <li>
+                    <strong>Who is in this cluster?</strong> Are the nearby biographies mostly
+                    women-labeled, mostly men-labeled, or mixed?
+                  </li>
+                  <li>
+                    <strong>What kind of language appears there?</strong> Click a dot and look at the
+                    phrases, frames, and similar biographies.
+                  </li>
+                  <li>
+                    <strong>Are people being described through authority, invention, leadership, care,
+                    teaching, advocacy, awards, or legacy?</strong>
+                  </li>
+                  <li>
+                    <strong>Do women and men appear in similar areas, or do they form different
+                    neighborhoods?</strong>
+                  </li>
+                  <li>
+                    <strong>Are there exceptions?</strong> Some biographies may not follow the larger
+                    pattern. These are interesting because they show that gendered language is not
+                    automatic or fixed.
+                  </li>
+                </ul>
+                <p>The most important thing is not one dot. The important thing is the pattern across many dots.</p>
+                <p>
+                  <strong>
+                    Look for where biographies cluster, click the dots, and ask what kind of public story is
+                    being told about each person.
+                  </strong>
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {!isPointSelected && (
+        <div
+          className="explore-sidebar"
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <button
+            type="button"
+            className={`faq-floating-button${
+              isEntered && !hasDismissedFaqGlow ? " is-glowing" : ""
+            }`}
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              setIsFaqOpen(true);
+            }}
+          >
+            What am I looking at?
+          </button>
+
+          <aside
+            className="explore-filters"
+            aria-label="Explore biography filters"
+          >
           <div className="filter-header">
             <span className="filter-title">Explore</span>
             <span className="filter-count">
@@ -483,7 +784,8 @@ function App() {
           >
             Clear filters
           </button>
-        </aside>
+          </aside>
+        </div>
       )}
 
       <div className="gender-legend">
