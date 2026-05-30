@@ -2,12 +2,14 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import {
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   type CSSProperties,
   type RefObject,
 } from "react";
+import { createPortal } from "react-dom";
 import Papa from "papaparse";
 import * as THREE from "three";
 
@@ -67,6 +69,7 @@ type LatentIntroProps = {
   onSelectedPointChange?: (isSelected: boolean) => void;
   onLoadProgressChange?: (progress: LatentLoadProgress) => void;
   onLatentReadyChange?: (isReady: boolean) => void;
+  uiShellRef?: RefObject<HTMLDivElement | null>;
 };
 
 type CsvPoint = {
@@ -2009,6 +2012,7 @@ export default function LatentIntro({
   onSelectedPointChange,
   onLoadProgressChange,
   onLatentReadyChange,
+  uiShellRef,
 }: LatentIntroProps) {
   const [points, setPoints] = useState<BioPoint[]>([]);
   const [isPointCloudVisible, setIsPointCloudVisible] = useState(false);
@@ -2024,6 +2028,11 @@ export default function LatentIntro({
   
   const [deviceMode] = useState<DeviceMode>(() => getDeviceMode());
   const [deviceNotice, setDeviceNotice] = useState<DeviceNotice | null>(null);
+  const [uiShellNode, setUiShellNode] = useState<HTMLElement | null>(null);
+
+  useLayoutEffect(() => {
+    setUiShellNode(uiShellRef?.current ?? null);
+  }, [uiShellRef]);
 
   function startMapInteraction() {
     if (mapInteractionEndTimeoutRef.current) { clearTimeout(mapInteractionEndTimeoutRef.current); mapInteractionEndTimeoutRef.current = null; }
@@ -2238,6 +2247,73 @@ export default function LatentIntro({
     return () => { isCancelled = true; };
   }, [deviceMode, onFilterOptionsChange, onLatentReadyChange, onLoadProgressChange]);
 
+  const chromePortals =
+    uiShellNode &&
+    createPortal(
+      <>
+        {deviceNotice && (
+          <div className="device-warning" role="status" aria-live="polite">
+            <strong>Lighter view active.</strong>{" "}
+            {deviceNotice.reason} Showing{" "}
+            {deviceNotice.displayedPoints.toLocaleString()} of{" "}
+            {deviceNotice.totalPoints.toLocaleString()} biographies. Use a stronger device
+            to see the full map.
+          </div>
+        )}
+
+        {isEntered && !selectedPoint && (
+          <aside
+            className="recompute-controls"
+            aria-label="Recompute local view controls"
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="recompute-header">
+              <div>
+                <span className="recompute-title">Explored local view</span>
+                <p>Recompute nearby gender mix inside the points currently shown by your filters.</p>
+              </div>
+            </div>
+
+            <label className="recompute-k-label">
+              neighboring bios
+              <input
+                type="number"
+                min={1}
+                max={50}
+                value={exploreNeighborK}
+                onChange={(event) => updateExploreNeighborK(Number(event.target.value))}
+              />
+            </label>
+
+            <div className="recompute-actions">
+              <button
+                type="button"
+                onClick={saveCurrentExploreSet}
+                disabled={visiblePoints.length < 2}
+              >
+                Recompute from current view
+              </button>
+              <button
+                type="button"
+                onClick={clearExploredLocalView}
+                disabled={!exploredPoints}
+              >
+                Clear
+              </button>
+            </div>
+
+            <p className="recompute-status">
+              {exploredPoints
+                ? `Recolored ${exploredPoints.length.toLocaleString()} biographies · neighboring bios: ${exploreNeighborK}`
+                : `Current view: ${visiblePoints.length.toLocaleString()} biographies`}
+            </p>
+          </aside>
+        )}
+      </>,
+      uiShellNode
+    );
+
   return (
     <>
     <div className="latent-stage">
@@ -2278,56 +2354,6 @@ export default function LatentIntro({
         />
       </Canvas>
 
-      {isEntered && !selectedPoint && (
-        <aside
-          className="recompute-controls"
-          aria-label="Recompute local view controls"
-          onPointerDown={(event) => event.stopPropagation()}
-          onClick={(event) => event.stopPropagation()}
-        >
-          <div className="recompute-header">
-            <div>
-              <span className="recompute-title">Explored local view</span>
-              <p>Recompute nearby gender mix inside the points currently shown by your filters.</p>
-            </div>
-          </div>
-
-          <label className="recompute-k-label">
-            neighboring bios
-            <input
-              type="number"
-              min={1}
-              max={50}
-              value={exploreNeighborK}
-              onChange={(event) => updateExploreNeighborK(Number(event.target.value))}
-            />
-          </label>
-
-          <div className="recompute-actions">
-            <button
-              type="button"
-              onClick={saveCurrentExploreSet}
-              disabled={visiblePoints.length < 2}
-            >
-              Recompute from current view
-            </button>
-            <button
-              type="button"
-              onClick={clearExploredLocalView}
-              disabled={!exploredPoints}
-            >
-              Clear
-            </button>
-          </div>
-
-          <p className="recompute-status">
-            {exploredPoints
-              ? `Recolored ${exploredPoints.length.toLocaleString()} biographies · neighboring bios: ${exploreNeighborK}`
-              : `Current view: ${visiblePoints.length.toLocaleString()} biographies`}
-          </p>
-        </aside>
-      )}
-
       {selectedPoint && (
         <SelectedPointOverlay
           key={selectedPoint.point.bioId}
@@ -2344,15 +2370,7 @@ export default function LatentIntro({
       )}
     </div>
 
-    {deviceNotice && (
-      <div className="device-warning" role="status" aria-live="polite">
-        <strong>Lighter view active.</strong>{" "}
-        {deviceNotice.reason} Showing{" "}
-        {deviceNotice.displayedPoints.toLocaleString()} of{" "}
-        {deviceNotice.totalPoints.toLocaleString()} biographies. Use a stronger device
-        to see the full map.
-      </div>
-    )}
+    {chromePortals}
     </>
   );
 }

@@ -65,6 +65,7 @@ function App() {
     isReady: false,
   });
   const [deviceMode] = useState(() => getDeviceMode());
+  const uiShellRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const entranceTimer = window.setTimeout(() => {
@@ -239,6 +240,7 @@ function App() {
         onLoadProgressChange={setLoadProgress}
         onLatentReadyChange={setIsLatentReady}
         isHomeIntroReady={isHomeIntroReady}
+        uiShellRef={uiShellRef}
       />
 
       {!isHomeIntroReady && (
@@ -298,6 +300,7 @@ function App() {
         </section>
       )}
 
+      <div ref={uiShellRef} id="home-ui-shell" className="home-ui-shell">
       <section className="intro-content">
         <h1 className="site-title-center">Coded Language</h1>
 
@@ -812,6 +815,7 @@ function App() {
             <span>Woman-leaning</span>
           </div>
         )}
+      </div>
       </div>
     </main>
   );

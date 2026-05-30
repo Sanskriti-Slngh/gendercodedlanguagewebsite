@@ -4508,6 +4508,16 @@
 
 /* ---------- mobile-like devices: sideways portrait layout + visible banner ---------- */
 
+.home-ui-shell {
+  position: relative;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.home-ui-shell > * {
+  pointer-events: auto;
+}
+
 .home-page.is-mobile-like .device-warning {
   top: auto;
   bottom: max(12px, env(safe-area-inset-bottom, 0px));
@@ -4627,32 +4637,193 @@
     margin-top: clamp(12px, 2.5vmin, 20px);
     font-size: clamp(0.78rem, 2.8svh, 0.92rem);
   }
-}
 
-@media (orientation: portrait) and (max-width: 760px) {
-  .home-page.is-mobile-like .view-controls {
-    top: auto;
-    right: 12px;
-    bottom: max(72px, calc(env(safe-area-inset-bottom, 0px) + 56px));
-    left: 12px;
-    max-width: none;
-    transform: scale(0.94);
-    transform-origin: bottom center;
+  /* Main explore UI: rotate the whole chrome layer sideways in portrait. */
+  .home-page.is-mobile-like.is-entered .home-ui-shell {
+    position: fixed;
+    inset: auto;
+    width: 100svh;
+    height: 100svw;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
   }
 
-  .home-page.is-mobile-like .view-mode-note {
+  .home-page.is-mobile-like.is-entered .home-ui-shell > * {
+    pointer-events: auto;
+  }
+
+  .home-page.is-mobile-like.is-entered .intro-content {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .home-page.is-mobile-like.is-entered .site-title-corner {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    right: auto;
+    max-width: 38%;
+    font-size: clamp(0.82rem, 2.8svh, 1rem);
+    transform: none;
+    opacity: 1;
+  }
+
+  .home-page.is-mobile-like.is-entered .explore-sidebar {
+    position: absolute;
+    top: 34px;
+    left: 8px;
+    bottom: 34px;
+    right: auto;
+    width: min(252px, 36%);
+    transform: none;
+  }
+
+  .home-page.is-mobile-like.is-entered .explore-filters {
+    padding: 8px 9px;
+    gap: 6px;
+    border-radius: 18px;
+  }
+
+  .home-page.is-mobile-like.is-entered .filter-title {
+    font-size: 0.82rem;
+  }
+
+  .home-page.is-mobile-like.is-entered .filter-count {
+    font-size: 0.68rem;
+    padding: 3px 7px;
+  }
+
+  .home-page.is-mobile-like.is-entered .filter-label {
+    font-size: 0.68rem;
+    gap: 3px;
+  }
+
+  .home-page.is-mobile-like.is-entered .filter-label input,
+  .home-page.is-mobile-like.is-entered .filter-label select {
+    min-height: 30px;
+    padding: 5px 9px;
+    font-size: 0.74rem;
+  }
+
+  .home-page.is-mobile-like.is-entered .filter-search-help {
+    display: none;
+  }
+
+  .home-page.is-mobile-like.is-entered .filter-search-button {
+    padding: 5px 10px;
     font-size: 0.72rem;
-    line-height: 1.16;
   }
 
-  .home-page.is-mobile-like .gender-legend,
-  .home-page.is-mobile-like .explore-sidebar {
-    transform: scale(0.92);
-    transform-origin: bottom left;
+  .home-page.is-mobile-like.is-entered .filter-section-title {
+    font-size: 0.68rem;
   }
 
-  .home-page.is-mobile-like .site-title-corner {
-    font-size: clamp(1.1rem, 5vw, 1.5rem);
-    max-width: 62vw;
+  .home-page.is-mobile-like.is-entered .filter-chip {
+    padding: 4px 8px;
+    font-size: 0.66rem;
+  }
+
+  .home-page.is-mobile-like.is-entered .clear-filters-button {
+    padding: 5px 10px;
+    font-size: 0.72rem;
+  }
+
+  .home-page.is-mobile-like.is-entered .faq-floating-button {
+    font-size: 0.68rem;
+    padding: 5px 9px;
+  }
+
+  .home-page.is-mobile-like.is-entered .recompute-controls {
+    position: absolute;
+    top: 34px;
+    right: 8px;
+    left: auto;
+    bottom: auto;
+    width: min(228px, 31%);
+    padding: 8px;
+    gap: 6px;
+    border-radius: 18px;
+  }
+
+  .home-page.is-mobile-like.is-entered .recompute-title {
+    font-size: 0.8rem;
+  }
+
+  .home-page.is-mobile-like.is-entered .recompute-header p,
+  .home-page.is-mobile-like.is-entered .recompute-status {
+    font-size: 0.64rem;
+    line-height: 1.12;
+  }
+
+  .home-page.is-mobile-like.is-entered .recompute-k-label {
+    font-size: 0.68rem;
+  }
+
+  .home-page.is-mobile-like.is-entered .recompute-k-label input {
+    width: 56px;
+    min-height: 28px;
+    padding: 4px 7px;
+    font-size: 0.78rem;
+  }
+
+  .home-page.is-mobile-like.is-entered .recompute-actions button {
+    padding: 5px 8px;
+    font-size: 0.66rem;
+  }
+
+  .home-page.is-mobile-like.is-entered .view-controls {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    left: auto;
+    bottom: auto;
+    max-width: min(196px, 27%);
+    transform: none;
+    padding: 5px 7px;
+    border-radius: 16px;
+  }
+
+  .home-page.is-mobile-like.is-entered .view-controls button {
+    padding: 5px 9px;
+    font-size: 0.68rem;
+  }
+
+  .home-page.is-mobile-like.is-entered .view-mode-note {
+    display: none;
+  }
+
+  .home-page.is-mobile-like.is-entered .gender-legend {
+    position: absolute;
+    left: 8px;
+    right: auto;
+    bottom: 8px;
+    transform: none;
+    padding: 5px 8px;
+    font-size: 0.66rem;
+    border-radius: 999px;
+  }
+
+  .home-page.is-mobile-like.is-entered .gradient-bar {
+    width: 56px;
+  }
+
+  .home-page.is-mobile-like.is-entered .device-warning {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 4px;
+    top: auto;
+    transform: none;
+    width: auto;
+    max-width: none;
+    padding: 5px 8px;
+    font-size: 0.58rem;
+    line-height: 1.12;
+    border-radius: 12px;
   }
 }
