@@ -5102,3 +5102,78 @@ padding: 12px !important;
 border-radius: 22px !important;
 }
 }
+
+/* =========================================================
+   FIX: Do not stretch the point cloud on mobile.
+   Keep the UI sideways, but keep the WebGL map normal.
+   Paste at the VERY BOTTOM of src/App.css.
+   ========================================================= */
+
+   @media (max-width: 760px) and (orientation: portrait),
+   (hover: none) and (pointer: coarse) and (orientation: portrait) {
+/* The map itself should NOT rotate or resize into landscape.
+ This keeps the dots visually normal and prevents stretching. */
+.home-page.is-mobile-like .latent-stage {
+position: fixed !important;
+inset: 0 !important;
+
+width: 100dvw !important;
+height: 100dvh !important;
+
+transform: none !important;
+transform-origin: center center !important;
+
+z-index: 0 !important;
+overflow: hidden !important;
+touch-action: none !important;
+}
+
+.home-page.is-mobile-like .latent-stage canvas {
+width: 100% !important;
+height: 100% !important;
+display: block !important;
+transform: none !important;
+touch-action: none !important;
+}
+
+/* Keep only the UI shell rotated sideways. */
+.home-page.is-mobile-like .home-ui-shell,
+.home-page.is-mobile-like .entrance-overlay {
+position: fixed !important;
+inset: auto !important;
+
+top: 50% !important;
+left: 50% !important;
+
+width: 100dvh !important;
+height: 100dvw !important;
+
+transform: translate(-50%, -50%) rotate(90deg) !important;
+transform-origin: center center !important;
+}
+
+/* Since the map is no longer rotated, do not apply the old entered shift. */
+.home-page.is-mobile-like.is-entered:not(.has-selected-point) .latent-stage {
+transform: none !important;
+}
+
+/* Give the non-rotated map a soft fade so the sideways UI stays readable. */
+.home-page.is-mobile-like.is-entered::before {
+content: "";
+position: fixed;
+inset: 0;
+z-index: 1;
+pointer-events: none;
+background:
+  linear-gradient(
+    90deg,
+    rgba(238, 246, 255, 0.18) 0%,
+    rgba(238, 246, 255, 0.42) 46%,
+    rgba(238, 246, 255, 0.74) 100%
+  );
+}
+
+.home-page.is-mobile-like .home-ui-shell {
+z-index: 10 !important;
+}
+}
