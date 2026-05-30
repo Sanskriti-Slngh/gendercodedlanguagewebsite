@@ -964,12 +964,62 @@ function FocusCamera({
   return null;
 }
 
-function RaycasterSettings() {
-  const { raycaster } = useThree();
-  useEffect(() => {
-    raycaster.params.Points = { threshold: 0.14 };
-  }, [raycaster]);
-  return null;
+const MIN_POINT_HIT_PX = 10;
+const POINT_HIT_SCALE = 1.2;
+const POINT_CLICK_DRAG_PX = 12;
+
+const _pickWorldPos = new THREE.Vector3();
+const _pickProjected = new THREE.Vector3();
+
+function findForegroundPointIndex(
+  clientX: number,
+  clientY: number,
+  positions: Float32Array,
+  worldMatrix: THREE.Matrix4,
+  camera: THREE.Camera,
+  canvasRect: DOMRect,
+  canvasHeight: number,
+  pointSize: number,
+): number | null {
+  const canvasX = clientX - canvasRect.left;
+  const canvasY = clientY - canvasRect.top;
+
+  const perspCamera = camera as THREE.PerspectiveCamera;
+  const fovRad = ((perspCamera.fov ?? 45) * Math.PI) / 180;
+  const focalHeight = canvasHeight / (2 * Math.tan(fovRad / 2));
+
+  let bestIndex: number | null = null;
+  let bestDepth = Infinity;
+  const count = positions.length / 3;
+
+  for (let i = 0; i < count; i++) {
+    _pickWorldPos.set(
+      positions[i * 3],
+      positions[i * 3 + 1],
+      positions[i * 3 + 2],
+    );
+    _pickWorldPos.applyMatrix4(worldMatrix);
+
+    const depth = _pickWorldPos.distanceTo(camera.position);
+    if (depth <= 0) continue;
+
+    _pickProjected.copy(_pickWorldPos).project(camera);
+    if (_pickProjected.z > 1) continue;
+
+    const screenX = (_pickProjected.x * 0.5 + 0.5) * canvasRect.width;
+    const screenY = (-_pickProjected.y * 0.5 + 0.5) * canvasRect.height;
+    const pixelDist = Math.hypot(screenX - canvasX, screenY - canvasY);
+    const pixelRadius = Math.max(MIN_POINT_HIT_PX, (pointSize * focalHeight) / depth) * POINT_HIT_SCALE;
+
+    if (pixelDist > pixelRadius) continue;
+
+    if (depth < bestDepth) {
+      bestDepth = depth;
+      bestIndex = i;
+    }
+  }
+
+  return bestIndex;
 }
 
 function LatentPointCloud({
@@ -995,9 +1045,9 @@ function LatentPointCloud({
   exploredLocalShares: ExploredLocalShareMap | null;
   onSelectPoint: (selected: SelectedBioPoint) => void;
 }) {
-  // FIX 1: Use a stable group for layout (no scale pulsing — that was shifting raycaster hits).
-  // Pulsing is applied to material size only, keeping world positions accurate.
+  const { camera, gl, size } = useThree();
   const groupRef = useRef<THREE.Group>(null);
+  const worldMatrixRef = useRef(new THREE.Matrix4());
   const circleTexture = useMemo(() => createCircleTexture(), []);
   const pulseRingTexture = useMemo(() => createPulseRingTexture(), []);
   const materialRef = useRef<THREE.PointsMaterial>(null);
@@ -1033,7 +1083,9 @@ function LatentPointCloud({
   }, [points, pointColorMode, layoutScale, exploredLocalShares]);
 
   const elapsedRef = useRef(0);
-  const pointClickStartRef = useRef<{ x: number; y: number; index: number } | null>(null);
+  const pointClickStartRef = useRef<{ x: number; y: number } | null>(null);
+  const hoverFrameRef = useRef<number | null>(null);
+  const pendingHoverRef = useRef<{ x: number; y: number } | null>(null);
 
   function clearHoveredPoint() {
     hoveredIndexRef.current = null;
@@ -1041,8 +1093,151 @@ function LatentPointCloud({
     if (typeof document !== "undefined") document.body.style.cursor = "";
   }
 
+  function pickPointIndexAtClient(clientX: number, clientY: number): number | null {
+    if (!groupRef.current || points.length === 0) return null;
+    groupRef.current.updateWorldMatrix(true, false);
+    worldMatrixRef.current.copy(groupRef.current.matrixWorld);
+    const canvasRect = gl.domElement.getBoundingClientRect();
+    const pointSize = materialRef.current?.size ?? 0.13;
+    return findForegroundPointIndex(
+      clientX,
+      clientY,
+      positions,
+      worldMatrixRef.current,
+      camera,
+      canvasRect,
+      size.height,
+      pointSize,
+    );
+  }
+
+  function applyHoverAtClient(clientX: number, clientY: number) {
+    if (!isEntered || isFading || isMapInteracting || pointClickStartRef.current) {
+      clearHoveredPoint();
+      return;
+    }
+
+    const pointIndex = pickPointIndexAtClient(clientX, clientY);
+    if (pointIndex === null) {
+      clearHoveredPoint();
+      return;
+    }
+
+    if (hoveredIndexRef.current === pointIndex) return;
+
+    const point = points[pointIndex];
+    if (!point) {
+      clearHoveredPoint();
+      return;
+    }
+
+    const recomputedLocalShare = exploredLocalShares?.get(point.bioId);
+    const c = pointColorMode === "local"
+      ? getStrongLocalColor(recomputedLocalShare?.womanShare ?? point.localWomanShare)
+      : getRawGenderColor(point.genderLabel);
+
+    hoveredIndexRef.current = pointIndex;
+    setHoveredPoint({
+      index: pointIndex,
+      localPosition: [positions[pointIndex * 3], positions[pointIndex * 3 + 1], positions[pointIndex * 3 + 2]],
+      color: colorToHex(c),
+    });
+
+    if (typeof document !== "undefined") document.body.style.cursor = "pointer";
+  }
+
+  function selectPointAtIndex(pointIndex: number) {
+    const point = points[pointIndex];
+    if (!point) return;
+
+    const scenePosition = new THREE.Vector3(
+      positions[pointIndex * 3],
+      positions[pointIndex * 3 + 1],
+      positions[pointIndex * 3 + 2],
+    );
+    onSelectPoint({ point, scenePosition });
+  }
+
   useEffect(() => () => { if (typeof document !== "undefined") document.body.style.cursor = ""; }, []);
   useEffect(() => { clearHoveredPoint(); }, [points, pointColorMode, isFading, isMapInteracting]);
+
+  useEffect(() => {
+    if (!isEntered || points.length === 0) return;
+
+    const canvas = gl.domElement;
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (!isEntered || isFading) return;
+      pointClickStartRef.current = { x: event.clientX, y: event.clientY };
+      clearHoveredPoint();
+    };
+
+    const onPointerUp = (event: PointerEvent) => {
+      if (!isEntered || isFading) return;
+
+      const start = pointClickStartRef.current;
+      pointClickStartRef.current = null;
+      if (!start) return;
+
+      if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > POINT_CLICK_DRAG_PX) return;
+
+      const pointIndex = pickPointIndexAtClient(event.clientX, event.clientY);
+      if (pointIndex === null) return;
+
+      clearHoveredPoint();
+      selectPointAtIndex(pointIndex);
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      pendingHoverRef.current = { x: event.clientX, y: event.clientY };
+      if (hoverFrameRef.current !== null) return;
+
+      hoverFrameRef.current = requestAnimationFrame(() => {
+        hoverFrameRef.current = null;
+        const pending = pendingHoverRef.current;
+        if (!pending) return;
+        applyHoverAtClient(pending.x, pending.y);
+      });
+    };
+
+    const onPointerLeave = () => {
+      pendingHoverRef.current = null;
+      if (hoverFrameRef.current !== null) {
+        cancelAnimationFrame(hoverFrameRef.current);
+        hoverFrameRef.current = null;
+      }
+      clearHoveredPoint();
+      pointClickStartRef.current = null;
+    };
+
+    canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointerup", onPointerUp);
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerleave", onPointerLeave);
+
+    return () => {
+      canvas.removeEventListener("pointerdown", onPointerDown);
+      canvas.removeEventListener("pointerup", onPointerUp);
+      canvas.removeEventListener("pointermove", onPointerMove);
+      canvas.removeEventListener("pointerleave", onPointerLeave);
+      if (hoverFrameRef.current !== null) {
+        cancelAnimationFrame(hoverFrameRef.current);
+        hoverFrameRef.current = null;
+      }
+    };
+  }, [
+    isEntered,
+    isFading,
+    isMapInteracting,
+    points,
+    positions,
+    pointColorMode,
+    exploredLocalShares,
+    camera,
+    gl,
+    size.height,
+    onSelectPoint,
+  ]);
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
@@ -1069,7 +1264,6 @@ function LatentPointCloud({
       const targetOpacity = showPoints ? (isFading ? 0.05 : 1) : 0;
       const fadeSmooth = 1 - Math.pow(0.001, delta * 0.28);
       materialRef.current.opacity = THREE.MathUtils.lerp(materialRef.current.opacity, targetOpacity, fadeSmooth);
-      // Material size pulse — doesn't affect raycasting positions
       materialRef.current.size = 0.13 + Math.sin(elapsedRef.current * 1.6) * 0.006;
     }
 
@@ -1082,91 +1276,9 @@ function LatentPointCloud({
 
   if (points.length === 0) return null;
 
-  function handlePointPointerMove(event: any) {
-    if (!isEntered || isFading || isMapInteracting || pointClickStartRef.current) {
-      clearHoveredPoint();
-      return;
-    }
-
-    const pointIndex = event.index;
-    if (typeof pointIndex !== "number") { clearHoveredPoint(); return; }
-
-    // FIX 2: Consistent threshold — match raycaster threshold exactly (0.14).
-    // No secondary distanceToRay check that was narrower than the raycaster itself.
-    if (hoveredIndexRef.current === pointIndex) return;
-
-    const point = points[pointIndex];
-    const hasDeepExplanation = Boolean(point?.explanation || point?.frameInfo || (point?.bucketsInBio?.length ?? 0) > 0);
-
-    if (!point || !hasDeepExplanation) { clearHoveredPoint(); return; }
-
-    const recomputedLocalShare = exploredLocalShares?.get(point.bioId);
-    const c = pointColorMode === "local"
-      ? getStrongLocalColor(recomputedLocalShare?.womanShare ?? point.localWomanShare)
-      : getRawGenderColor(point.genderLabel);
-
-    hoveredIndexRef.current = pointIndex;
-    setHoveredPoint({
-      index: pointIndex,
-      localPosition: [positions[pointIndex * 3], positions[pointIndex * 3 + 1], positions[pointIndex * 3 + 2]],
-      color: colorToHex(c),
-    });
-
-    if (typeof document !== "undefined") document.body.style.cursor = "pointer";
-  }
-
-  function handlePointPointerDown(event: any) {
-    if (!isEntered || isFading) return;
-    clearHoveredPoint();
-
-    const pointIndex = event.index;
-    if (typeof pointIndex !== "number") { pointClickStartRef.current = null; return; }
-
-    pointClickStartRef.current = {
-      x: event.nativeEvent?.clientX ?? 0,
-      y: event.nativeEvent?.clientY ?? 0,
-      index: pointIndex,
-    };
-  }
-
-  function handlePointPointerUp(event: any) {
-    if (!isEntered || isFading) return;
-
-    const start = pointClickStartRef.current;
-    pointClickStartRef.current = null;
-    if (!start) return;
-
-    const endX = event.nativeEvent?.clientX ?? start.x;
-    const endY = event.nativeEvent?.clientY ?? start.y;
-    if (Math.hypot(endX - start.x, endY - start.y) > 12) return;
-
-    const point = points[start.index];
-    if (!point) return;
-
-    event.stopPropagation();
-    clearHoveredPoint();
-
-    // FIX 1 continued: positions array is the definitive source of scene position.
-    // We compute from it directly rather than using localToWorld on the group,
-    // which was unreliable when the group had a non-identity scale from pulsing.
-    const scenePosition = new THREE.Vector3(
-      positions[start.index * 3],
-      positions[start.index * 3 + 1],
-      positions[start.index * 3 + 2]
-    );
-
-    onSelectPoint({ point, scenePosition });
-  }
-
   return (
     <group ref={groupRef}>
-      <points
-        onPointerMove={handlePointPointerMove}
-        onPointerDown={handlePointPointerDown}
-        onPointerUp={handlePointPointerUp}
-        onPointerOut={() => { clearHoveredPoint(); pointClickStartRef.current = null; }}
-        onPointerLeave={() => { clearHoveredPoint(); pointClickStartRef.current = null; }}
-      >
+      <points raycast={() => null}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[positions, 3]} />
           <bufferAttribute attach="attributes-color" args={[colors, 3]} />
@@ -2419,7 +2531,6 @@ export default function LatentIntro({
         dpr={canvasDpr}
         style={{ touchAction: "none" }}
       >
-        <RaycasterSettings />
         <color attach="background" args={["#f3f8ff"]} />
         <ambientLight intensity={0.9} />
         <pointLight position={[3, 4, 5]} intensity={1.8} />
