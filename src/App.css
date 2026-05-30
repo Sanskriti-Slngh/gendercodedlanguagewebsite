@@ -3952,7 +3952,7 @@
   left: 50%;
   top: 16px;
   transform: translateX(-50%);
-  z-index: 60;
+  z-index: 30;
 
   width: min(720px, calc(100vw - 28px));
   padding: 11px 16px;
@@ -4503,5 +4503,156 @@
 
   .faq-close-button {
     width: 100%;
+  }
+}
+
+/* ---------- mobile-like devices: sideways portrait layout + visible banner ---------- */
+
+.home-page.is-mobile-like .device-warning {
+  top: auto;
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+  border-radius: 16px;
+  padding: 9px 12px;
+  font-size: 0.78rem;
+  line-height: 1.22;
+}
+
+.home-page.is-mobile-like.has-selected-point .device-warning {
+  opacity: 0.94;
+}
+
+@media (orientation: portrait) {
+  .home-page.is-mobile-like .entrance-overlay {
+    width: 100svh;
+    height: 100svw;
+    inset: auto;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    padding: clamp(8px, 1.8vmin, 16px);
+    overflow: auto;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .home-page.is-mobile-like .entrance-overlay::before {
+    inset: clamp(6px, 1.2vmin, 12px);
+    border-radius: clamp(16px, 2.5vmin, 24px);
+  }
+
+  .home-page.is-mobile-like .entrance-card {
+    width: min(94%, 940px);
+    max-height: none;
+    align-content: center;
+  }
+
+  .home-page.is-mobile-like .entrance-eyebrow {
+    margin-bottom: clamp(3px, 0.8vmin, 8px);
+    font-size: clamp(0.58rem, 2.2svh, 0.76rem);
+    letter-spacing: 0.12em;
+  }
+
+  .home-page.is-mobile-like .entrance-title {
+    font-size: clamp(1.55rem, 6.8svh, 2.45rem);
+    line-height: 0.88;
+  }
+
+  .home-page.is-mobile-like .entrance-purpose {
+    width: 100%;
+    margin-top: clamp(4px, 1vmin, 8px);
+    font-size: clamp(0.64rem, 2.5svh, 0.84rem);
+    line-height: 1.12;
+  }
+
+  .home-page.is-mobile-like .entrance-mini-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    margin-top: clamp(6px, 1.4vmin, 10px);
+    gap: clamp(4px, 0.9vmin, 8px);
+  }
+
+  .home-page.is-mobile-like .entrance-mini-card {
+    min-height: auto;
+    padding: clamp(5px, 1vmin, 8px);
+    border-radius: clamp(12px, 1.8vmin, 16px);
+    gap: 2px;
+  }
+
+  .home-page.is-mobile-like .entrance-mini-card strong {
+    font-size: clamp(0.58rem, 2.2svh, 0.74rem);
+    line-height: 1.06;
+  }
+
+  .home-page.is-mobile-like .entrance-mini-card span {
+    font-size: clamp(0.52rem, 1.9svh, 0.68rem);
+    line-height: 1.08;
+  }
+
+  .home-page.is-mobile-like .entrance-progress {
+    width: min(260px, 58%);
+    height: clamp(4px, 0.9vmin, 6px);
+    margin-top: clamp(6px, 1.2vmin, 10px);
+  }
+
+  .home-page.is-mobile-like .entrance-explore-button {
+    margin-top: clamp(6px, 1.2vmin, 10px);
+    min-width: 104px;
+    padding: clamp(5px, 1vmin, 7px) clamp(14px, 2.5vmin, 20px);
+    font-size: clamp(0.74rem, 2.4svh, 0.86rem);
+  }
+
+  .home-page.is-mobile-like .entrance-status {
+    margin-top: clamp(3px, 0.7vmin, 6px);
+    font-size: clamp(0.6rem, 2svh, 0.72rem);
+  }
+
+  .home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .intro-content {
+    inset: auto;
+    width: 100svh;
+    height: 100svw;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    padding: 16px 24px;
+  }
+
+  .home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .site-title-center {
+    width: min(88%, 720px);
+    font-size: clamp(1.8rem, 9svh, 3rem);
+    line-height: 0.88;
+  }
+
+  .home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .click-hint {
+    margin-top: clamp(12px, 2.5vmin, 20px);
+    font-size: clamp(0.78rem, 2.8svh, 0.92rem);
+  }
+}
+
+@media (orientation: portrait) and (max-width: 760px) {
+  .home-page.is-mobile-like .view-controls {
+    top: auto;
+    right: 12px;
+    bottom: max(72px, calc(env(safe-area-inset-bottom, 0px) + 56px));
+    left: 12px;
+    max-width: none;
+    transform: scale(0.94);
+    transform-origin: bottom center;
+  }
+
+  .home-page.is-mobile-like .view-mode-note {
+    font-size: 0.72rem;
+    line-height: 1.16;
+  }
+
+  .home-page.is-mobile-like .gender-legend,
+  .home-page.is-mobile-like .explore-sidebar {
+    transform: scale(0.92);
+    transform-origin: bottom left;
+  }
+
+  .home-page.is-mobile-like .site-title-corner {
+    font-size: clamp(1.1rem, 5vw, 1.5rem);
+    max-width: 62vw;
   }
 }

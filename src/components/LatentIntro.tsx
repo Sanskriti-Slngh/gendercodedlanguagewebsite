@@ -12,6 +12,7 @@ import Papa from "papaparse";
 import * as THREE from "three";
 
 import {
+  FULL_DATASET_POINT_COUNT,
   getDeviceMode,
   limitPointsForDevice,
   type DeviceMode,
@@ -2024,16 +2025,6 @@ export default function LatentIntro({
   const [deviceMode] = useState<DeviceMode>(() => getDeviceMode());
   const [deviceNotice, setDeviceNotice] = useState<DeviceNotice | null>(null);
 
-  useEffect(() => {
-    if (deviceMode.isLimitedDevice) {
-      setDeviceNotice({
-        reason: deviceMode.reason,
-        displayedPoints: deviceMode.maxPoints,
-        totalPoints: deviceMode.maxPoints,
-      });
-    }
-  }, [deviceMode]);
-
   function startMapInteraction() {
     if (mapInteractionEndTimeoutRef.current) { clearTimeout(mapInteractionEndTimeoutRef.current); mapInteractionEndTimeoutRef.current = null; }
     setIsMapInteracting(true);
@@ -2156,17 +2147,15 @@ export default function LatentIntro({
           .map(parseCsvRowToBasePoint)
           .filter((p): p is BioPoint => p !== null);
 
-        const totalPointCount = basePoints.length;
-
         const deviceLimitedBasePoints = deviceMode.isLimitedDevice
           ? limitPointsForDevice(basePoints, deviceMode.maxPoints)
           : basePoints;
 
-        if (deviceMode.isLimitedDevice && deviceLimitedBasePoints.length < totalPointCount) {
+        if (deviceMode.isLimitedDevice) {
           setDeviceNotice({
             reason: deviceMode.reason,
             displayedPoints: deviceLimitedBasePoints.length,
-            totalPoints: totalPointCount,
+            totalPoints: FULL_DATASET_POINT_COUNT,
           });
         } else {
           setDeviceNotice(null);
@@ -2250,6 +2239,7 @@ export default function LatentIntro({
   }, [deviceMode, onFilterOptionsChange, onLatentReadyChange, onLoadProgressChange]);
 
   return (
+    <>
     <div className="latent-stage">
       <Canvas camera={{ position: [0, 1.3, 8.5], fov: 45 }} dpr={canvasDpr}>
         <RaycasterSettings />
@@ -2287,16 +2277,6 @@ export default function LatentIntro({
           onEnd={endMapInteractionSoon}
         />
       </Canvas>
-
-      {deviceNotice && (
-        <div className="device-warning" role="status" aria-live="polite">
-          <strong>Lighter view active.</strong>{" "}
-          {deviceNotice.reason} Showing{" "}
-          {deviceNotice.displayedPoints.toLocaleString()} of{" "}
-          {deviceNotice.totalPoints.toLocaleString()} biographies. Use a stronger device
-          to see the full map.
-        </div>
-      )}
 
       {isEntered && !selectedPoint && (
         <aside
@@ -2363,5 +2343,16 @@ export default function LatentIntro({
         />
       )}
     </div>
+
+    {deviceNotice && (
+      <div className="device-warning" role="status" aria-live="polite">
+        <strong>Lighter view active.</strong>{" "}
+        {deviceNotice.reason} Showing{" "}
+        {deviceNotice.displayedPoints.toLocaleString()} of{" "}
+        {deviceNotice.totalPoints.toLocaleString()} biographies. Use a stronger device
+        to see the full map.
+      </div>
+    )}
+    </>
   );
 }

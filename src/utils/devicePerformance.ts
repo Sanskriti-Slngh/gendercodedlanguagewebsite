@@ -8,6 +8,7 @@ export type DeviceMode = {
   isTouchDevice: boolean;
 };
 
+export const FULL_DATASET_POINT_COUNT = 79680;
 const LIMITED_MAX_POINTS = 1000;
 const LIMITED_REASON =
   "This device may not smoothly render the full dataset, so the map is showing a lighter version.";

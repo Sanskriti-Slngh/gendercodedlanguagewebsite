@@ -8,6 +8,7 @@ import LatentIntro, {
   type TimePeriodFilter,
   type LatentLoadProgress,
 } from "./components/LatentIntro";
+import { getDeviceMode } from "./utils/devicePerformance";
 
 const DEFAULT_FILTERS: PointFilters = {
   search: "",
@@ -63,6 +64,7 @@ function App() {
     phase: "Preparing latent space",
     isReady: false,
   });
+  const [deviceMode] = useState(() => getDeviceMode());
 
   useEffect(() => {
     const entranceTimer = window.setTimeout(() => {
@@ -222,7 +224,9 @@ function App() {
         isPointSelected ? "has-selected-point" : ""
       } ${isLatentReady ? "is-latent-ready" : "is-loading-latent"} ${
         isHomeIntroReady ? "is-home-intro-ready" : "is-entrance-active"
-      } ${hasPressedExplore ? "has-pressed-explore" : ""}`}
+      } ${hasPressedExplore ? "has-pressed-explore" : ""} ${
+        deviceMode.isLimitedDevice ? "is-mobile-like" : ""
+      }`}
       onPointerDownCapture={handlePagePointerDownCapture}
     >
       <LatentIntro
