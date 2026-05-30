@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import "./App.css";
 import LatentIntro, {
   type FilterOptions,
@@ -37,6 +45,27 @@ function toggleArrayValue<T extends string>(values: T[], value: T): T[] {
     : [...values, value];
 }
 
+type FaqScrollTarget = "findings" | "methodology";
+
+const HOME_GUIDE_ITEMS = [
+  {
+    label: "What is this?",
+    text: "An interactive analysis of how biographies describe men and women differently.",
+  },
+  {
+    label: "Why does it matter?",
+    text: "Biographies shape public memory, credibility, and whose achievements feel “important.”",
+  },
+  {
+    label: "What can I do here?",
+    text: "Explore people, clusters, gender-coded patterns, similar biographies, and examples.",
+  },
+  {
+    label: "Why trust it?",
+    text: "Built from a large public biography dataset with documented masking, embeddings, and limitations—see Methodology for details.",
+  },
+] as const;
+
 function App() {
   const [isEntered, setIsEntered] = useState(false);
   const [pointColorMode, setPointColorMode] =
@@ -56,6 +85,7 @@ function App() {
   const [hasPressedExplore, setHasPressedExplore] = useState(false);
   const [isEntranceDismissed, setIsEntranceDismissed] = useState(false);
   const [isFaqOpen, setIsFaqOpen] = useState(false);
+  const [faqScrollTarget, setFaqScrollTarget] = useState<FaqScrollTarget | null>(null);
   const [hasDismissedFaqGlow, setHasDismissedFaqGlow] = useState(false);
   const exploreExitTimeoutRef = useRef<number | null>(null);
   const [loadProgress, setLoadProgress] = useState<LatentLoadProgress>({
@@ -100,8 +130,17 @@ function App() {
     }, 650);
   }
 
-  function handlePagePointerDownCapture() {
+  function handlePagePointerDownCapture(event: ReactPointerEvent) {
     if (!isHomeIntroReady) return;
+
+    const target = event.target as HTMLElement;
+    if (
+      target.closest(
+        ".home-guide, .start-here, .faq-overlay, .entrance-overlay, .view-controls, .explore-sidebar",
+      )
+    ) {
+      return;
+    }
 
     if (!isEntered) {
       setIsEntered(true);
@@ -112,6 +151,25 @@ function App() {
       setHasDismissedFaqGlow(true);
     }
   }
+
+  function openFaqSection(section: FaqScrollTarget) {
+    setFaqScrollTarget(section);
+    setIsFaqOpen(true);
+  }
+
+  function stopIntroPointer(event: ReactPointerEvent) {
+    event.stopPropagation();
+  }
+
+  useLayoutEffect(() => {
+    if (!isFaqOpen || !faqScrollTarget) return;
+
+    const sectionId =
+      faqScrollTarget === "findings" ? "faq-findings" : "faq-methodology";
+    const section = document.getElementById(sectionId);
+    section?.scrollIntoView({ block: "start", behavior: "smooth" });
+    setFaqScrollTarget(null);
+  }, [isFaqOpen, faqScrollTarget]);
 
   function updateSearch(search: string) {
     setSearchDraft(search);
@@ -254,11 +312,8 @@ function App() {
             <h1 className="entrance-title">Coded Language</h1>
 
             <p className="entrance-purpose">
-              This exhibit looks at how public biographies describe women vs men in academia.
-              Each dot is one biography. Dots that are close together are similarly worded. As
-              you explore, you can see which kinds of language patterns appear more often around
-              women-labeled or men-labeled biographies, revealing how gender bias can appear
-              through repeated patterns of public language.
+              An interactive analysis of how public biographies describe men and women
+              differently—each dot is one biography, and nearby dots use similar language.
             </p>
 
             <div className="entrance-mini-grid" aria-label="How to read the exhibit">
@@ -304,8 +359,64 @@ function App() {
       <section className="intro-content">
         <h1 className="site-title-center">Coded Language</h1>
 
+        {isHomeIntroReady && !isEntered && (
+          <>
+            <section className="home-guide" aria-label="About this project">
+              <div className="home-guide-grid">
+                {HOME_GUIDE_ITEMS.map((item) => (
+                  <div key={item.label} className="home-guide-item">
+                    <p className="home-guide-label">{item.label}</p>
+                    <p className="home-guide-text">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="start-here" aria-label="Start here">
+              <h2 className="start-here-title">Start Here</h2>
+              <div className="start-here-actions">
+                <button
+                  type="button"
+                  className="start-here-button start-here-button--primary"
+                  onPointerDown={stopIntroPointer}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setIsEntered(true);
+                  }}
+                >
+                  Explore the Map
+                </button>
+                <button
+                  type="button"
+                  className="start-here-button"
+                  onPointerDown={stopIntroPointer}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    openFaqSection("findings");
+                  }}
+                >
+                  See Key Findings
+                </button>
+                <button
+                  type="button"
+                  className="start-here-button"
+                  onPointerDown={stopIntroPointer}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    openFaqSection("methodology");
+                  }}
+                >
+                  Read the Methodology
+                </button>
+              </div>
+            </section>
+          </>
+        )}
+
         <p className={`click-hint${isHomeIntroReady ? "" : " is-waiting"}`}>
-          Click anywhere to enter
+          {isHomeIntroReady && !isEntered
+            ? "Or click anywhere on the map to enter"
+            : "Click anywhere to enter"}
         </p>
 
         <h1 className="site-title-corner" aria-hidden="true">
@@ -390,6 +501,96 @@ function App() {
                 </p>
               </article>
 
+              <article id="faq-findings" className="faq-section">
+                <h3>What are the findings?</h3>
+                <p>
+                  The main finding is that the biographies do not appear randomly written. There are
+                  repeated patterns in how people are described.
+                </p>
+                <p>
+                  In this dataset, some language patterns appear more often around women-labeled
+                  biographies, and some appear more often around men-labeled biographies.
+                </p>
+                <p>For example, women-labeled biographies more often show frames connected to:</p>
+                <ul className="faq-list">
+                  <li>current research focus</li>
+                  <li>education and teaching</li>
+                  <li>care, health, psychology, or social support</li>
+                  <li>advocacy, justice, access, and inclusion</li>
+                  <li>being a &ldquo;first&rdquo; or representing participation in a field</li>
+                </ul>
+                <p>Men-labeled biographies more often show frames connected to:</p>
+                <ul className="faq-list">
+                  <li>senior titles and prestige</li>
+                  <li>fellowships, academies, and awards</li>
+                  <li>leadership and command roles</li>
+                  <li>technical authority</li>
+                  <li>older historical legacy</li>
+                  <li>business, state, war, or institutional power</li>
+                </ul>
+                <p>
+                  This does <strong>not</strong> mean every woman is written one way or every man is written
+                  another way. It also does <strong>not</strong> prove that any individual author intended
+                  to be biased.
+                </p>
+                <p>Instead, the finding is about repeated public writing patterns:</p>
+                <p>
+                  <strong>
+                    When many biographies are placed side by side, gendered patterns of recognition,
+                    authority, care, service, and legacy begin to appear.
+                  </strong>
+                </p>
+              </article>
+
+              <article id="faq-methodology" className="faq-section">
+                <h3>Why trust this project?</h3>
+                <h4 className="faq-subheading">Dataset</h4>
+                <p>
+                  This site visualizes about 79,680 public biographies drawn from academic and
+                  Wikipedia-style sources. Each point keeps metadata such as field, career type, dates,
+                  and the gender label listed in the source record.
+                </p>
+                <h4 className="faq-subheading">Masking</h4>
+                <p>
+                  Names and other identifying details are masked in the biography text shown on the site.
+                  The analysis focuses on recurring language patterns across many biographies, not on
+                  calling out one person.
+                </p>
+                <h4 className="faq-subheading">Embeddings</h4>
+                <p>
+                  Each biography is converted into a language embedding using MPNet. Similar texts are
+                  placed near each other in 3D, which is why clusters on the map represent shared wording
+                  rather than random scatter.
+                </p>
+                <h4 className="faq-subheading">Limitations</h4>
+                <p>Please read the patterns with these limits in mind:</p>
+                <ul className="faq-list">
+                  <li>
+                    Patterns are <strong>correlational</strong>. They do not prove that any writer intended
+                    to be biased.
+                  </li>
+                  <li>
+                    Gender is treated as a <strong>binary label</strong> as listed in the source data,
+                    which does not capture the full range of identity.
+                  </li>
+                  <li>
+                    Public biographies over-represent certain fields, eras, and Wikipedia-style writing,
+                    so the map reflects those sources—not all of history.
+                  </li>
+                  <li>
+                    Phrase and frame lists come from a classifier. They highlight wording that statistically
+                    co-occurs with labels, not words that are inherently good or bad.
+                  </li>
+                </ul>
+                <h4 className="faq-subheading">Sources and downloads</h4>
+                <p>
+                  CSV files, frame definitions, and point-level explanations are available in the
+                  project&apos;s GitHub repository (see the data table below). For questions about
+                  additional research files, email{" "}
+                  <a href="mailto:sanskritisingh0914@gmail.com">sanskritisingh0914@gmail.com</a>.
+                </p>
+              </article>
+
               <article className="faq-section">
                 <h3>Who would want to explore this website?</h3>
                 <p>This website is for anyone interested in how language shapes public memory.</p>
@@ -470,47 +671,6 @@ function App() {
                   If you&apos;d like the files that helped develop this data, please reach out directly
                   via email:{" "}
                   <a href="mailto:sanskritisingh0914@gmail.com">sanskritisingh0914@gmail.com</a>
-                </p>
-              </article>
-
-              <article className="faq-section">
-                <h3>What are the findings?</h3>
-                <p>
-                  The main finding is that the biographies do not appear randomly written. There are
-                  repeated patterns in how people are described.
-                </p>
-                <p>
-                  In this dataset, some language patterns appear more often around women-labeled
-                  biographies, and some appear more often around men-labeled biographies.
-                </p>
-                <p>For example, women-labeled biographies more often show frames connected to:</p>
-                <ul className="faq-list">
-                  <li>current research focus</li>
-                  <li>education and teaching</li>
-                  <li>care, health, psychology, or social support</li>
-                  <li>advocacy, justice, access, and inclusion</li>
-                  <li>being a &ldquo;first&rdquo; or representing participation in a field</li>
-                </ul>
-                <p>Men-labeled biographies more often show frames connected to:</p>
-                <ul className="faq-list">
-                  <li>senior titles and prestige</li>
-                  <li>fellowships, academies, and awards</li>
-                  <li>leadership and command roles</li>
-                  <li>technical authority</li>
-                  <li>older historical legacy</li>
-                  <li>business, state, war, or institutional power</li>
-                </ul>
-                <p>
-                  This does <strong>not</strong> mean every woman is written one way or every man is written
-                  another way. It also does <strong>not</strong> prove that any individual author intended
-                  to be biased.
-                </p>
-                <p>Instead, the finding is about repeated public writing patterns:</p>
-                <p>
-                  <strong>
-                    When many biographies are placed side by side, gendered patterns of recognition,
-                    authority, care, service, and legacy begin to appear.
-                  </strong>
                 </p>
               </article>
 

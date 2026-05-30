@@ -85,6 +85,122 @@
 
   padding: clamp(24px, 6vw, 96px);
   text-align: center;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.home-guide,
+.start-here {
+  pointer-events: auto;
+  width: min(920px, 94vw);
+}
+
+.home-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(10px, 1.4vw, 16px);
+  margin-top: clamp(14px, 2.5vw, 24px);
+  text-align: left;
+}
+
+.home-guide-item {
+  padding: clamp(12px, 1.6vw, 18px);
+  border: 1px solid rgba(7, 31, 69, 0.12);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 14px 40px rgba(7, 31, 69, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.home-guide-label {
+  margin: 0 0 6px;
+  font-family: "Times New Roman", Times, serif;
+  font-size: clamp(0.82rem, 1.1vw, 0.95rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(7, 31, 69, 0.62);
+}
+
+.home-guide-text {
+  margin: 0;
+  font-family: "Times New Roman", Times, serif;
+  font-size: clamp(0.98rem, 1.35vw, 1.12rem);
+  line-height: 1.32;
+  color: #071f45;
+  text-shadow: var(--text-halo-body);
+}
+
+.start-here {
+  margin-top: clamp(16px, 2.8vw, 28px);
+}
+
+.start-here-title {
+  margin: 0;
+  font-family: Copperplate, "Copperplate Gothic Light", fantasy;
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  letter-spacing: 0.08em;
+  font-weight: 400;
+  color: #041528;
+  text-shadow: var(--text-halo-title);
+}
+
+.start-here-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: clamp(12px, 2vw, 18px);
+}
+
+.start-here-button {
+  border: 1px solid rgba(7, 31, 69, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #071f45;
+  cursor: pointer;
+  font-family: "Times New Roman", Times, serif;
+  font-size: clamp(0.92rem, 1.2vw, 1.05rem);
+  letter-spacing: 0.03em;
+  padding: 10px 18px;
+  box-shadow: 0 12px 30px rgba(7, 31, 69, 0.1);
+  transition:
+    background 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease;
+}
+
+.start-here-button:hover,
+.start-here-button:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(7, 31, 69, 0.28);
+  box-shadow: 0 16px 36px rgba(7, 31, 69, 0.14);
+}
+
+.start-here-button--primary {
+  background: #071f45;
+  border-color: rgba(7, 31, 69, 0.3);
+  color: #ffffff;
+}
+
+.start-here-button--primary:hover,
+.start-here-button--primary:focus-visible {
+  background: #0a2a5c;
+}
+
+@media (max-width: 760px) {
+  .home-guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .start-here-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .start-here-button {
+    width: 100%;
+  }
 }
 
 /* CENTER TITLE BEFORE CLICK */
@@ -181,7 +297,9 @@
 /* BEFORE CLICK */
 .is-intro .site-title-center,
 .is-intro .intro-subtitle,
-.is-intro .click-hint {
+.is-intro .click-hint,
+.is-intro .home-guide,
+.is-intro .start-here {
   opacity: 1;
   transform: translateY(0) scale(1);
   filter: blur(0);
@@ -199,7 +317,9 @@
 }
 
 .is-entered .intro-subtitle,
-.is-entered .click-hint {
+.is-entered .click-hint,
+.is-entered .home-guide,
+.is-entered .start-here {
   opacity: 0;
   transform: translateY(18px);
   filter: blur(8px);
@@ -3803,18 +3923,36 @@
   letter-spacing: 0.02em;
 }
 
-/* After the entrance, the homepage is intentionally minimal. */
+/* After the entrance, the homepage shows the share-ready guide. */
 .is-home-intro-ready .intro-content {
   opacity: 1;
+  justify-content: flex-start;
+  padding-top: clamp(28px, 5vh, 72px);
+  padding-bottom: clamp(28px, 5vh, 72px);
   transition: opacity 680ms ease;
 }
 
 .is-home-intro-ready .site-title-center {
-  margin-bottom: clamp(22px, 4vw, 44px);
+  margin-bottom: 0;
 }
 
 .is-home-intro-ready .click-hint {
-  margin-top: 0;
+  margin-top: clamp(14px, 2.4vw, 22px);
+  font-size: clamp(0.88rem, 1.1vw, 1rem);
+  opacity: 0.82;
+}
+
+.is-home-intro-ready:not(.is-entered) .home-guide,
+.is-home-intro-ready:not(.is-entered) .start-here {
+  transition:
+    opacity 700ms ease,
+    transform 700ms ease,
+    filter 700ms ease;
+}
+
+#faq-findings,
+#faq-methodology {
+  scroll-margin-top: 18px;
 }
 
 @keyframes entranceFadeIn {
@@ -4611,9 +4749,15 @@ pointer-events: none !important;
 pointer-events: auto !important;
 }
 
-.home-page.is-mobile-like .intro-content,
-.home-page.is-mobile-like .intro-content * {
+.home-page.is-mobile-like .intro-content {
 pointer-events: none !important;
+}
+
+.home-page.is-mobile-like .intro-content .home-guide,
+.home-page.is-mobile-like .intro-content .start-here,
+.home-page.is-mobile-like .intro-content .home-guide *,
+.home-page.is-mobile-like .intro-content .start-here * {
+pointer-events: auto !important;
 }
 
 /* Entrance screen */
@@ -4690,11 +4834,48 @@ position: absolute !important;
 inset: 0 !important;
 
 display: flex !important;
-align-items: center !important;
-justify-content: center !important;
+align-items: flex-start !important;
+justify-content: flex-start !important;
 
-padding: 20px !important;
+padding: 16px 14px 24px !important;
 transform: none !important;
+overflow-y: auto !important;
+}
+
+.home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .home-guide-grid {
+grid-template-columns: 1fr !important;
+gap: 8px !important;
+margin-top: 10px !important;
+}
+
+.home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .home-guide-item {
+padding: 10px 12px !important;
+border-radius: 14px !important;
+}
+
+.home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .home-guide-label {
+font-size: 0.72rem !important;
+}
+
+.home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .home-guide-text {
+font-size: 0.82rem !important;
+line-height: 1.25 !important;
+}
+
+.home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .start-here {
+margin-top: 12px !important;
+}
+
+.home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .start-here-actions {
+flex-direction: column !important;
+align-items: stretch !important;
+gap: 8px !important;
+}
+
+.home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .start-here-button {
+width: 100% !important;
+padding: 9px 14px !important;
+font-size: 0.88rem !important;
 }
 
 .home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .site-title-center {
