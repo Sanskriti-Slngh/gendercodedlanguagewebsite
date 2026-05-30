@@ -304,12 +304,12 @@ function App() {
       {!isHomeIntroReady && (
         <section
           className={`entrance-overlay ${hasEntrancePlayed ? "is-waiting-for-map" : ""} ${canPressExplore ? "is-ready-to-explore" : ""} ${hasPressedExplore ? "has-pressed-explore" : ""}`}
-          aria-label="Coded Language entrance"
+          aria-label="Gendered Language in Biographies entrance"
           onPointerDown={(event) => event.stopPropagation()}
         >
           <div className="entrance-card">
             <p className="entrance-eyebrow">Public biographies → visible patterns</p>
-            <h1 className="entrance-title">Coded Language</h1>
+            <h1 className="entrance-title">Gendered Language in Biographies</h1>
 
             <p className="entrance-purpose">
               An interactive analysis of how public biographies describe men and women
@@ -357,7 +357,7 @@ function App() {
 
       <div ref={uiShellRef} id="home-ui-shell" className="home-ui-shell">
       <section className="intro-content">
-        <h1 className="site-title-center">Coded Language</h1>
+        <h1 className="site-title-center">Gendered Language in Biographies</h1>
 
         {isHomeIntroReady && !isEntered && (
           <>
@@ -420,7 +420,7 @@ function App() {
         </p>
 
         <h1 className="site-title-corner" aria-hidden="true">
-          Coded Language
+          Gendered Language in Biographies
         </h1>
       </section>
 
@@ -461,7 +461,7 @@ function App() {
             <div className="faq-header">
               <div>
                 <p className="faq-eyebrow">How to read this project</p>
-                <h2>What is Coded Language?</h2>
+                <h2>What is Gendered Language in Biographies?</h2>
               </div>
 
               <button
