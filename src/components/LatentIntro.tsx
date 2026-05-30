@@ -1454,6 +1454,76 @@ function SimilarProfileList({ profiles, points, onSelectProfile }: { profiles: S
   );
 }
 
+function useSidewaysMobileOverlay(active: boolean) {
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!active) return undefined;
+
+    const applySidewaysLayout = () => {
+      const el = overlayRef.current;
+      if (!el) return;
+
+      const viewportW = window.innerWidth;
+      const viewportH = window.innerHeight;
+      const isPortrait = viewportH >= viewportW;
+
+      if (!isPortrait) {
+        el.style.removeProperty("width");
+        el.style.removeProperty("height");
+        el.style.removeProperty("max-width");
+        el.style.removeProperty("max-height");
+        el.style.removeProperty("transform");
+        el.style.removeProperty("-webkit-transform");
+        return;
+      }
+
+      el.style.setProperty("position", "fixed", "important");
+      el.style.setProperty("top", "50%", "important");
+      el.style.setProperty("left", "50%", "important");
+      el.style.setProperty("inset", "auto", "important");
+      el.style.setProperty("width", `${viewportH}px`, "important");
+      el.style.setProperty("height", `${viewportW}px`, "important");
+      el.style.setProperty("max-width", `${viewportH}px`, "important");
+      el.style.setProperty("max-height", `${viewportW}px`, "important");
+      el.style.setProperty("margin", "0", "important");
+      el.style.setProperty(
+        "transform",
+        "translate(-50%, -50%) rotate(90deg)",
+        "important"
+      );
+      el.style.setProperty(
+        "-webkit-transform",
+        "translate(-50%, -50%) rotate(90deg)",
+        "important"
+      );
+      el.style.setProperty("transform-origin", "center center", "important");
+      el.style.setProperty("z-index", "99999", "important");
+      el.style.setProperty("overflow", "hidden", "important");
+      el.style.setProperty("display", "flex", "important");
+      el.style.setProperty("align-items", "center", "important");
+      el.style.setProperty("justify-content", "center", "important");
+      el.style.setProperty("padding", "8px", "important");
+      el.style.setProperty("background", "rgba(243, 248, 255, 0.97)", "important");
+      el.style.setProperty("pointer-events", "auto", "important");
+    };
+
+    applySidewaysLayout();
+
+    window.addEventListener("resize", applySidewaysLayout);
+    window.addEventListener("orientationchange", applySidewaysLayout);
+    const timer = window.setTimeout(applySidewaysLayout, 150);
+
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("resize", applySidewaysLayout);
+      window.removeEventListener("orientationchange", applySidewaysLayout);
+    };
+  }, [active]);
+
+  return overlayRef;
+}
+
 function CirclePill({ label, value, panel, activePanel, setActivePanel }: { label: string; value: string; panel: SelectedCirclePanel; activePanel: SelectedCirclePanel; setActivePanel: (p: SelectedCirclePanel) => void }) {
   return (
     <button className={`selected-orbit-pill orbit-${panel} ${activePanel === panel ? "active" : ""}`} onClick={() => setActivePanel(panel)}>
@@ -1574,29 +1644,13 @@ function SelectedPointOverlay({
   const mapLean = mapLeanDisplay(point.frameInfo?.predictedMapLean || patternLabel);
   const labelChip = genderText ? `${cleanDisplayValue(genderText)}-labeled` : "Label unavailable";
   const similarProfiles = point.frameInfo?.similarProfiles ?? [];
-
-  const mobileSidewaysOverlayStyle: CSSProperties | undefined = isMobileSideways
-    ? {
-        position: "fixed",
-        top: "50%",
-        left: "50%",
-        width: "100dvh",
-        height: "100dvw",
-        transform: "translate(-50%, -50%) rotate(90deg)",
-        WebkitTransform: "translate(-50%, -50%) rotate(90deg)",
-        transformOrigin: "center center",
-        zIndex: 9999,
-        overflow: "hidden",
-        padding: "8px",
-        background: "rgba(243, 248, 255, 0.94)",
-        backdropFilter: "blur(8px)",
-      }
-    : undefined;
+  const sidewaysOverlayRef = useSidewaysMobileOverlay(isMobileSideways);
 
   return (
     <div
+      ref={sidewaysOverlayRef}
       className={`selected-exhibit-overlay${isMobileSideways ? " is-mobile-sideways-exhibit" : ""}`}
-      style={{ ...overlayStyle, ...mobileSidewaysOverlayStyle }}
+      style={overlayStyle}
       onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
@@ -2055,7 +2109,7 @@ export default function LatentIntro({
   }, [uiShellRef]);
 
   useEffect(() => {
-    if (!deviceMode.isLimitedDevice || typeof document === "undefined") return undefined;
+    if (!deviceMode.isMobileLayout || typeof document === "undefined") return undefined;
 
     if (selectedPoint) {
       document.body.classList.add("mobile-point-selected");
@@ -2066,7 +2120,7 @@ export default function LatentIntro({
     return () => {
       document.body.classList.remove("mobile-point-selected");
     };
-  }, [selectedPoint, deviceMode.isLimitedDevice]);
+  }, [selectedPoint, deviceMode.isMobileLayout]);
 
   function startMapInteraction() {
     if (mapInteractionEndTimeoutRef.current) { clearTimeout(mapInteractionEndTimeoutRef.current); mapInteractionEndTimeoutRef.current = null; }
@@ -2360,7 +2414,7 @@ export default function LatentIntro({
       onClearExploredSet={clearExploredLocalView}
       onSelectProfile={selectPointByBioId}
       onClose={() => setSelectedPoint(null)}
-      isMobileSideways={deviceMode.isLimitedDevice}
+      isMobileSideways={deviceMode.isMobileLayout}
     />
   ) : null;
 

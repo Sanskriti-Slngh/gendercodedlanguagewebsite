@@ -226,7 +226,7 @@ function App() {
       } ${isLatentReady ? "is-latent-ready" : "is-loading-latent"} ${
         isHomeIntroReady ? "is-home-intro-ready" : "is-entrance-active"
       } ${hasPressedExplore ? "has-pressed-explore" : ""} ${
-        deviceMode.isLimitedDevice ? "is-mobile-like" : ""
+        deviceMode.isMobileLayout ? "is-mobile-like" : ""
       }`}
       onPointerDownCapture={handlePagePointerDownCapture}
     >

@@ -1,5 +1,6 @@
 export type DeviceMode = {
   isLimitedDevice: boolean;
+  isMobileLayout: boolean;
   maxPoints: number;
   reason: string;
   memory: number | null;
@@ -7,6 +8,13 @@ export type DeviceMode = {
   isSmallScreen: boolean;
   isTouchDevice: boolean;
 };
+
+export function isMobileLayoutDevice(): boolean {
+  if (typeof window === "undefined" || typeof navigator === "undefined") {
+    return false;
+  }
+  return isMobileLikeDevice(getDeviceSignals());
+}
 
 export const FULL_DATASET_POINT_COUNT = 79680;
 const LIMITED_MAX_POINTS = 1000;
@@ -17,6 +25,7 @@ export function getDeviceMode(): DeviceMode {
   if (typeof window === "undefined" || typeof navigator === "undefined") {
     return createDeviceMode({
       isLimitedDevice: false,
+      isMobileLayout: false,
       maxPoints: Infinity,
       reason: "",
       memory: null,
@@ -59,6 +68,7 @@ export function getDeviceMode(): DeviceMode {
 
   return createDeviceMode({
     isLimitedDevice: false,
+    isMobileLayout: isMobileLikeDevice(signals),
     maxPoints: Infinity,
     reason: "",
     memory: signals.memory,
@@ -129,6 +139,7 @@ function createLimitedDeviceMode(
 ): DeviceMode {
   return createDeviceMode({
     isLimitedDevice: true,
+    isMobileLayout: isMobileLikeDevice(signals),
     maxPoints: LIMITED_MAX_POINTS,
     reason,
     memory: signals.memory,

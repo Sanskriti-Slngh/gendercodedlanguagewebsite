@@ -5475,6 +5475,16 @@ body.mobile-point-selected {
   overflow: hidden !important;
 }
 
+body.mobile-point-selected .home-ui-shell {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.mobile-point-selected .home-page.is-mobile-like .latent-stage {
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
 .selected-exhibit-overlay.is-mobile-sideways-exhibit {
   position: fixed !important;
   top: 50% !important;
