@@ -2317,7 +2317,11 @@ export default function LatentIntro({
   return (
     <>
     <div className="latent-stage">
-      <Canvas camera={{ position: [0, 1.3, 8.5], fov: 45 }} dpr={canvasDpr}>
+      <Canvas
+        camera={{ position: [0, 1.3, 8.5], fov: 45 }}
+        dpr={canvasDpr}
+        style={{ touchAction: "none" }}
+      >
         <RaycasterSettings />
         <color attach="background" args={["#f3f8ff"]} />
         <ambientLight intensity={0.9} />
@@ -2344,11 +2348,14 @@ export default function LatentIntro({
           enableDamping
           dampingFactor={0.08}
           enableZoom
-          zoomToCursor
+          zoomToCursor={false}
           enablePan
           screenSpacePanning
           minDistance={1.2}
           maxDistance={12}
+          rotateSpeed={0.85}
+          zoomSpeed={0.9}
+          panSpeed={0.85}
           onStart={startMapInteraction}
           onEnd={endMapInteractionSoon}
         />

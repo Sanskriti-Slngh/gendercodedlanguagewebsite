@@ -52,6 +52,13 @@
   position: fixed;
   inset: 0;
   z-index: 0;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.latent-stage canvas {
+  touch-action: none;
 }
 
 .home-page::after {
@@ -4514,8 +4521,19 @@
   pointer-events: none;
 }
 
-.home-ui-shell > * {
+/* Only interactive panels capture touches — never the full-screen intro layer. */
+.home-ui-shell .explore-sidebar,
+.home-ui-shell .view-controls,
+.home-ui-shell .gender-legend,
+.home-ui-shell .recompute-controls,
+.home-ui-shell .device-warning,
+.home-ui-shell .faq-overlay {
   pointer-events: auto;
+}
+
+.home-ui-shell .intro-content,
+.home-ui-shell .intro-content * {
+  pointer-events: none !important;
 }
 
 .home-page.is-mobile-like .device-warning {
@@ -4637,193 +4655,226 @@
     margin-top: clamp(12px, 2.5vmin, 20px);
     font-size: clamp(0.78rem, 2.8svh, 0.92rem);
   }
+}
 
-  /* Main explore UI: rotate the whole chrome layer sideways in portrait. */
-  .home-page.is-mobile-like.is-entered .home-ui-shell {
-    position: fixed;
-    inset: auto;
-    width: 100svh;
-    height: 100svw;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(90deg);
-    z-index: 3;
-    pointer-events: none;
-    overflow: hidden;
-  }
+/* Main explore UI on phones: sideways shell + compact controls (not inside orientation query). */
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways > .explore-sidebar,
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways > .view-controls,
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways > .gender-legend,
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-controls,
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .device-warning {
+  pointer-events: auto;
+}
 
-  .home-page.is-mobile-like.is-entered .home-ui-shell > * {
-    pointer-events: auto;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .intro-content {
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none;
+}
 
-  .home-page.is-mobile-like.is-entered .intro-content {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .site-title-corner {
+  position: absolute !important;
+  top: 6px !important;
+  left: 8px !important;
+  right: auto !important;
+  bottom: auto !important;
+  max-width: 34% !important;
+  font-size: 0.78rem !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
 
-  .home-page.is-mobile-like.is-entered .site-title-corner {
-    position: absolute;
-    top: 8px;
-    left: 10px;
-    right: auto;
-    max-width: 38%;
-    font-size: clamp(0.82rem, 2.8svh, 1rem);
-    transform: none;
-    opacity: 1;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .explore-sidebar {
+  position: absolute !important;
+  top: 28px !important;
+  left: 6px !important;
+  bottom: 28px !important;
+  right: auto !important;
+  width: 38% !important;
+  max-width: 38% !important;
+  transform: none !important;
+  gap: 4px !important;
+}
 
-  .home-page.is-mobile-like.is-entered .explore-sidebar {
-    position: absolute;
-    top: 34px;
-    left: 8px;
-    bottom: 34px;
-    right: auto;
-    width: min(252px, 36%);
-    transform: none;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .faq-floating-button {
+  padding: 4px 8px !important;
+  font-size: 0.62rem !important;
+  line-height: 1.1 !important;
+  box-shadow: 0 8px 20px rgba(7, 31, 69, 0.1) !important;
+}
 
-  .home-page.is-mobile-like.is-entered .explore-filters {
-    padding: 8px 9px;
-    gap: 6px;
-    border-radius: 18px;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .explore-filters {
+  padding: 6px 7px !important;
+  gap: 4px !important;
+  border-radius: 14px !important;
+}
 
-  .home-page.is-mobile-like.is-entered .filter-title {
-    font-size: 0.82rem;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-title {
+  font-size: 0.72rem !important;
+}
 
-  .home-page.is-mobile-like.is-entered .filter-count {
-    font-size: 0.68rem;
-    padding: 3px 7px;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-count {
+  font-size: 0.58rem !important;
+  padding: 2px 6px !important;
+}
 
-  .home-page.is-mobile-like.is-entered .filter-label {
-    font-size: 0.68rem;
-    gap: 3px;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-label {
+  font-size: 0.58rem !important;
+  gap: 2px !important;
+}
 
-  .home-page.is-mobile-like.is-entered .filter-label input,
-  .home-page.is-mobile-like.is-entered .filter-label select {
-    min-height: 30px;
-    padding: 5px 9px;
-    font-size: 0.74rem;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-label input,
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-label select {
+  min-height: 26px !important;
+  padding: 4px 8px !important;
+  font-size: 0.64rem !important;
+}
 
-  .home-page.is-mobile-like.is-entered .filter-search-help {
-    display: none;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-search-help {
+  display: none !important;
+}
 
-  .home-page.is-mobile-like.is-entered .filter-search-button {
-    padding: 5px 10px;
-    font-size: 0.72rem;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-search-actions {
+  gap: 4px !important;
+}
 
-  .home-page.is-mobile-like.is-entered .filter-section-title {
-    font-size: 0.68rem;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-search-button {
+  padding: 4px 8px !important;
+  font-size: 0.6rem !important;
+}
 
-  .home-page.is-mobile-like.is-entered .filter-chip {
-    padding: 4px 8px;
-    font-size: 0.66rem;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-section {
+  gap: 4px !important;
+}
 
-  .home-page.is-mobile-like.is-entered .clear-filters-button {
-    padding: 5px 10px;
-    font-size: 0.72rem;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-section-title {
+  font-size: 0.58rem !important;
+  margin-bottom: 2px !important;
+}
 
-  .home-page.is-mobile-like.is-entered .faq-floating-button {
-    font-size: 0.68rem;
-    padding: 5px 9px;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-chip-row {
+  gap: 4px !important;
+}
 
-  .home-page.is-mobile-like.is-entered .recompute-controls {
-    position: absolute;
-    top: 34px;
-    right: 8px;
-    left: auto;
-    bottom: auto;
-    width: min(228px, 31%);
-    padding: 8px;
-    gap: 6px;
-    border-radius: 18px;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-chip {
+  padding: 3px 6px !important;
+  font-size: 0.56rem !important;
+}
 
-  .home-page.is-mobile-like.is-entered .recompute-title {
-    font-size: 0.8rem;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .option-chip,
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .bucket-filter-chip {
+  padding: 4px 6px !important;
+  font-size: 0.54rem !important;
+  line-height: 1.08 !important;
+  border-radius: 12px !important;
+}
 
-  .home-page.is-mobile-like.is-entered .recompute-header p,
-  .home-page.is-mobile-like.is-entered .recompute-status {
-    font-size: 0.64rem;
-    line-height: 1.12;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .bucket-filter-name,
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .bucket-filter-preview,
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .bucket-filter-lean {
+  font-size: 0.52rem !important;
+}
 
-  .home-page.is-mobile-like.is-entered .recompute-k-label {
-    font-size: 0.68rem;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .clear-filters-button {
+  padding: 4px 8px !important;
+  font-size: 0.6rem !important;
+}
 
-  .home-page.is-mobile-like.is-entered .recompute-k-label input {
-    width: 56px;
-    min-height: 28px;
-    padding: 4px 7px;
-    font-size: 0.78rem;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-controls {
+  position: absolute !important;
+  top: 28px !important;
+  right: 6px !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: 28% !important;
+  max-width: 28% !important;
+  padding: 6px !important;
+  gap: 4px !important;
+  border-radius: 14px !important;
+  transform: none !important;
+}
 
-  .home-page.is-mobile-like.is-entered .recompute-actions button {
-    padding: 5px 8px;
-    font-size: 0.66rem;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-title {
+  font-size: 0.68rem !important;
+}
 
-  .home-page.is-mobile-like.is-entered .view-controls {
-    position: absolute;
-    top: 6px;
-    right: 8px;
-    left: auto;
-    bottom: auto;
-    max-width: min(196px, 27%);
-    transform: none;
-    padding: 5px 7px;
-    border-radius: 16px;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-header p,
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-status {
+  font-size: 0.54rem !important;
+  line-height: 1.1 !important;
+}
 
-  .home-page.is-mobile-like.is-entered .view-controls button {
-    padding: 5px 9px;
-    font-size: 0.68rem;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-k-label {
+  font-size: 0.56rem !important;
+  gap: 6px !important;
+}
 
-  .home-page.is-mobile-like.is-entered .view-mode-note {
-    display: none;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-k-label input {
+  width: 44px !important;
+  min-height: 24px !important;
+  padding: 3px 5px !important;
+  font-size: 0.68rem !important;
+}
 
-  .home-page.is-mobile-like.is-entered .gender-legend {
-    position: absolute;
-    left: 8px;
-    right: auto;
-    bottom: 8px;
-    transform: none;
-    padding: 5px 8px;
-    font-size: 0.66rem;
-    border-radius: 999px;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-actions {
+  gap: 4px !important;
+}
 
-  .home-page.is-mobile-like.is-entered .gradient-bar {
-    width: 56px;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-actions button {
+  padding: 4px 6px !important;
+  font-size: 0.54rem !important;
+}
 
-  .home-page.is-mobile-like.is-entered .device-warning {
-    position: absolute;
-    left: 8px;
-    right: 8px;
-    bottom: 4px;
-    top: auto;
-    transform: none;
-    width: auto;
-    max-width: none;
-    padding: 5px 8px;
-    font-size: 0.58rem;
-    line-height: 1.12;
-    border-radius: 12px;
-  }
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .view-controls {
+  position: absolute !important;
+  top: 4px !important;
+  right: 6px !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: 24% !important;
+  max-width: 24% !important;
+  transform: none !important;
+  padding: 4px 5px !important;
+  border-radius: 12px !important;
+  gap: 4px !important;
+}
+
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .view-controls button {
+  padding: 4px 7px !important;
+  font-size: 0.58rem !important;
+}
+
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .view-mode-note {
+  display: none !important;
+}
+
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .gender-legend {
+  position: absolute !important;
+  left: 6px !important;
+  right: auto !important;
+  bottom: 6px !important;
+  top: auto !important;
+  transform: none !important;
+  padding: 3px 6px !important;
+  font-size: 0.54rem !important;
+  border-radius: 999px !important;
+}
+
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .gradient-bar {
+  width: 44px !important;
+}
+
+.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .device-warning {
+  position: absolute !important;
+  left: 6px !important;
+  right: 6px !important;
+  bottom: 2px !important;
+  top: auto !important;
+  transform: none !important;
+  width: auto !important;
+  max-width: none !important;
+  padding: 4px 6px !important;
+  font-size: 0.5rem !important;
+  line-height: 1.1 !important;
+  border-radius: 10px !important;
 }
