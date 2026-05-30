@@ -1469,27 +1469,52 @@ function useSidewaysMobileOverlay(active: boolean): CSSProperties | null {
       const viewportH = viewport?.height ?? window.innerHeight;
       const offsetTop = viewport?.offsetTop ?? 0;
       const offsetLeft = viewport?.offsetLeft ?? 0;
+      const isPortrait = viewportH >= viewportW;
 
+      if (!isPortrait) {
+        setFrameStyle({
+          position: "fixed",
+          top: offsetTop,
+          left: offsetLeft,
+          width: viewportW,
+          height: viewportH,
+          maxWidth: viewportW,
+          maxHeight: viewportH,
+          margin: 0,
+          padding: 8,
+          boxSizing: "border-box",
+          transform: "none",
+          WebkitTransform: "none",
+          zIndex: 99999,
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "rgba(243, 248, 255, 0.97)",
+          pointerEvents: "auto",
+        });
+        return;
+      }
+
+      // Portrait: rotate 90° so the two-column layout reads horizontally.
       setFrameStyle({
         position: "fixed",
-        top: offsetTop,
-        left: offsetLeft,
-        width: viewportW,
-        height: viewportH,
-        maxWidth: viewportW,
-        maxHeight: viewportH,
+        top: offsetTop + viewportH / 2,
+        left: offsetLeft + viewportW / 2,
+        width: viewportH,
+        height: viewportW,
+        maxWidth: viewportH,
+        maxHeight: viewportW,
         margin: 0,
-        paddingTop: "max(8px, env(safe-area-inset-top))",
-        paddingRight: "max(8px, env(safe-area-inset-right))",
-        paddingBottom: "max(8px, env(safe-area-inset-bottom))",
-        paddingLeft: "max(8px, env(safe-area-inset-left))",
+        padding: 8,
         boxSizing: "border-box",
-        transform: "none",
-        WebkitTransform: "none",
+        transform: "translate(-50%, -50%) rotate(90deg)",
+        WebkitTransform: "translate(-50%, -50%) rotate(90deg)",
+        transformOrigin: "center center",
         zIndex: 99999,
         overflow: "hidden",
         display: "flex",
-        alignItems: "stretch",
+        alignItems: "center",
         justifyContent: "center",
         background: "rgba(243, 248, 255, 0.97)",
         pointerEvents: "auto",

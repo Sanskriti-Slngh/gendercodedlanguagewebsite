@@ -5467,7 +5467,7 @@ padding: 5px 7px !important;
 }
 
 /* =========================================================
-   SELECTED POINT — mobile body portal (no rotation)
+   SELECTED POINT — mobile body portal (90° rotation in portrait)
    Overlay is portaled to document.body on mobile.
    ========================================================= */
 
@@ -5494,24 +5494,21 @@ body.mobile-point-selected .home-page.is-mobile-like .latent-stage {
 
 .selected-exhibit-overlay.is-mobile-sideways-exhibit {
   position: fixed !important;
-  inset: 0 !important;
+  inset: unset !important;
+  right: auto !important;
+  bottom: auto !important;
   margin: 0 !important;
   box-sizing: border-box !important;
   z-index: 99999 !important;
   display: flex !important;
-  align-items: stretch !important;
+  align-items: center !important;
   justify-content: center !important;
   overflow: hidden !important;
-  padding:
-    max(8px, env(safe-area-inset-top))
-    max(8px, env(safe-area-inset-right))
-    max(8px, env(safe-area-inset-bottom))
-    max(8px, env(safe-area-inset-left)) !important;
+  padding: 8px !important;
   background: rgba(243, 248, 255, 0.97) !important;
   backdrop-filter: blur(10px) !important;
   pointer-events: auto !important;
   animation: none !important;
-  transform: none !important;
 }
 
 .selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-exhibit-shell {
@@ -5521,9 +5518,9 @@ body.mobile-point-selected .home-page.is-mobile-like .latent-stage {
   max-height: 100% !important;
   min-height: 0 !important;
   display: grid !important;
-  grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr) !important;
-  gap: 6px !important;
-  align-items: stretch !important;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr) !important;
+  gap: 8px !important;
+  align-items: center !important;
   overflow: hidden !important;
   animation: none !important;
   box-sizing: border-box !important;
@@ -5550,11 +5547,11 @@ body.mobile-point-selected .home-page.is-mobile-like .latent-stage {
 
 .selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-circle-system {
   position: relative !important;
-  width: min(100%, 42vw, 168px) !important;
+  width: min(100%, 34dvh) !important;
   min-width: 0 !important;
-  max-width: 168px !important;
+  max-width: 280px !important;
   aspect-ratio: 1 / 1 !important;
-  margin: 22px auto 0 !important;
+  margin: 18px auto 0 !important;
 }
 
 .selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-circle-ring {
@@ -5580,15 +5577,15 @@ body.mobile-point-selected .home-page.is-mobile-like .latent-stage {
 }
 
 .selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-orbit-pill {
-  width: 82px !important;
-  min-height: 28px !important;
-  padding: 3px 5px !important;
-  font-size: 0.54rem !important;
+  width: 104px !important;
+  min-height: 30px !important;
+  padding: 4px 6px !important;
+  font-size: 0.58rem !important;
 }
 
 .selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-orbit-pill strong,
 .selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-orbit-pill span {
-  font-size: 0.54rem !important;
+  font-size: 0.58rem !important;
 }
 
 .selected-exhibit-overlay.is-mobile-sideways-exhibit .orbit-summary {
@@ -5598,18 +5595,18 @@ body.mobile-point-selected .home-page.is-mobile-like .latent-stage {
 }
 
 .selected-exhibit-overlay.is-mobile-sideways-exhibit .orbit-pattern {
-  top: 16% !important;
-  right: -6% !important;
+  top: 17% !important;
+  right: -2% !important;
 }
 
 .selected-exhibit-overlay.is-mobile-sideways-exhibit .orbit-dates {
   top: 46% !important;
-  right: -8% !important;
+  right: -4% !important;
 }
 
 .selected-exhibit-overlay.is-mobile-sideways-exhibit .orbit-source {
-  right: -6% !important;
-  bottom: 16% !important;
+  right: -2% !important;
+  bottom: 17% !important;
 }
 
 .selected-exhibit-overlay.is-mobile-sideways-exhibit .orbit-text {
@@ -5619,13 +5616,13 @@ body.mobile-point-selected .home-page.is-mobile-like .latent-stage {
 }
 
 .selected-exhibit-overlay.is-mobile-sideways-exhibit .orbit-field {
-  left: -6% !important;
-  bottom: 16% !important;
+  left: -2% !important;
+  bottom: 17% !important;
 }
 
 .selected-exhibit-overlay.is-mobile-sideways-exhibit .orbit-career {
   top: 46% !important;
-  left: -8% !important;
+  left: -4% !important;
 }
 
 .selected-exhibit-overlay.is-mobile-sideways-exhibit .explanation-bar {
