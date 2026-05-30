@@ -5465,3 +5465,195 @@ font-size: 0.66rem !important;
 padding: 5px 7px !important;
 }
 }
+
+/* =========================================================
+   SELECTED POINT — direct sideways rotation (body portal)
+   Works on Safari without relying on parent shell transform.
+   ========================================================= */
+
+body.mobile-point-selected {
+  overflow: hidden !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: 100dvh !important;
+  height: 100dvw !important;
+  max-width: 100dvh !important;
+  max-height: 100dvw !important;
+  transform: translate(-50%, -50%) rotate(90deg) !important;
+  -webkit-transform: translate(-50%, -50%) rotate(90deg) !important;
+  transform-origin: center center !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  padding: 8px !important;
+  margin: 0 !important;
+  background: rgba(243, 248, 255, 0.96) !important;
+  backdrop-filter: blur(10px) !important;
+  pointer-events: auto !important;
+  animation: none !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-exhibit-shell {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  display: grid !important;
+  grid-template-columns: minmax(240px, 0.72fr) minmax(300px, 1.28fr) !important;
+  gap: 10px !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  animation: none !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-circle-column {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  animation: none !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-close-button {
+  position: absolute !important;
+  top: 6px !important;
+  left: 6px !important;
+  z-index: 5 !important;
+  padding: 6px 12px !important;
+  font-size: 0.78rem !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-circle-system {
+  position: relative !important;
+  width: min(280px, 34dvh) !important;
+  min-width: 220px !important;
+  max-width: 280px !important;
+  aspect-ratio: 1 / 1 !important;
+  margin: 22px 0 0 !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-circle-ring {
+  inset: 15% !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-circle-core {
+  inset: 18% !important;
+  padding: 10px !important;
+  overflow: auto !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-circle-core h2 {
+  font-size: 0.92rem !important;
+  line-height: 1.05 !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-circle-core p,
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-circle-core a,
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-circle-scroll {
+  font-size: 0.66rem !important;
+  line-height: 1.12 !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-orbit-pill {
+  width: 104px !important;
+  min-height: 30px !important;
+  padding: 4px 6px !important;
+  font-size: 0.58rem !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-orbit-pill strong,
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .selected-orbit-pill span {
+  font-size: 0.58rem !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .orbit-summary {
+  top: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .orbit-pattern {
+  top: 17% !important;
+  right: -2% !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .orbit-dates {
+  top: 46% !important;
+  right: -4% !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .orbit-source {
+  right: -2% !important;
+  bottom: 17% !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .orbit-text {
+  bottom: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .orbit-field {
+  left: -2% !important;
+  bottom: 17% !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .orbit-career {
+  top: 46% !important;
+  left: -4% !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .explanation-bar {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px !important;
+  border-radius: 18px !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .explanation-header h2 {
+  font-size: 0.92rem !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .eyebrow {
+  font-size: 0.58rem !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .explanation-card {
+  padding: 8px !important;
+  margin-bottom: 6px !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .explanation-card h3 {
+  font-size: 0.72rem !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .point-conclusion,
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .bucket-readable-explanation,
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .explanation-warning,
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .explored-local-note,
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .explored-local-empty {
+  font-size: 0.62rem !important;
+  line-height: 1.15 !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .phrase-evidence-grid,
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .frame-evidence-columns {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 6px !important;
+}
+
+.selected-exhibit-overlay.is-mobile-sideways-exhibit .phrase-chip {
+  font-size: 0.56rem !important;
+  padding: 4px 6px !important;
+}

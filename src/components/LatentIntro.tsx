@@ -1473,6 +1473,7 @@ function SelectedPointOverlay({
   onClearExploredSet,
   onSelectProfile,
   onClose,
+  isMobileSideways = false,
 }: {
   selectedPoint: SelectedBioPoint;
   pointColorMode: PointColorMode;
@@ -1483,6 +1484,7 @@ function SelectedPointOverlay({
   onClearExploredSet: () => void;
   onSelectProfile: (bioId: string) => void;
   onClose: () => void;
+  isMobileSideways?: boolean;
 }) {
   const { point } = selectedPoint;
   const [activePanel, setActivePanel] = useState<SelectedCirclePanel>("summary");
@@ -1573,10 +1575,28 @@ function SelectedPointOverlay({
   const labelChip = genderText ? `${cleanDisplayValue(genderText)}-labeled` : "Label unavailable";
   const similarProfiles = point.frameInfo?.similarProfiles ?? [];
 
+  const mobileSidewaysOverlayStyle: CSSProperties | undefined = isMobileSideways
+    ? {
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        width: "100dvh",
+        height: "100dvw",
+        transform: "translate(-50%, -50%) rotate(90deg)",
+        WebkitTransform: "translate(-50%, -50%) rotate(90deg)",
+        transformOrigin: "center center",
+        zIndex: 9999,
+        overflow: "hidden",
+        padding: "8px",
+        background: "rgba(243, 248, 255, 0.94)",
+        backdropFilter: "blur(8px)",
+      }
+    : undefined;
+
   return (
     <div
-      className="selected-exhibit-overlay"
-      style={overlayStyle}
+      className={`selected-exhibit-overlay${isMobileSideways ? " is-mobile-sideways-exhibit" : ""}`}
+      style={{ ...overlayStyle, ...mobileSidewaysOverlayStyle }}
       onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
@@ -2034,6 +2054,20 @@ export default function LatentIntro({
     setUiShellNode(uiShellRef?.current ?? null);
   }, [uiShellRef]);
 
+  useEffect(() => {
+    if (!deviceMode.isLimitedDevice || typeof document === "undefined") return undefined;
+
+    if (selectedPoint) {
+      document.body.classList.add("mobile-point-selected");
+    } else {
+      document.body.classList.remove("mobile-point-selected");
+    }
+
+    return () => {
+      document.body.classList.remove("mobile-point-selected");
+    };
+  }, [selectedPoint, deviceMode.isLimitedDevice]);
+
   function startMapInteraction() {
     if (mapInteractionEndTimeoutRef.current) { clearTimeout(mapInteractionEndTimeoutRef.current); mapInteractionEndTimeoutRef.current = null; }
     setIsMapInteracting(true);
@@ -2314,6 +2348,22 @@ export default function LatentIntro({
       uiShellNode
     );
 
+  const selectedPointOverlay = selectedPoint ? (
+    <SelectedPointOverlay
+      key={selectedPoint.point.bioId}
+      selectedPoint={selectedPoint}
+      pointColorMode={pointColorMode}
+      allPoints={points}
+      exploredLocalInfo={exploredLocalInfo}
+      exploreNeighborK={exploreNeighborK}
+      onExploreNeighborKChange={updateExploreNeighborK}
+      onClearExploredSet={clearExploredLocalView}
+      onSelectProfile={selectPointByBioId}
+      onClose={() => setSelectedPoint(null)}
+      isMobileSideways={deviceMode.isLimitedDevice}
+    />
+  ) : null;
+
   return (
     <>
     <div className="latent-stage">
@@ -2361,37 +2411,9 @@ export default function LatentIntro({
         />
       </Canvas>
 
-      {selectedPoint &&
-        (uiShellNode ? (
-          createPortal(
-            <SelectedPointOverlay
-              key={selectedPoint.point.bioId}
-              selectedPoint={selectedPoint}
-              pointColorMode={pointColorMode}
-              allPoints={points}
-              exploredLocalInfo={exploredLocalInfo}
-              exploreNeighborK={exploreNeighborK}
-              onExploreNeighborKChange={updateExploreNeighborK}
-              onClearExploredSet={clearExploredLocalView}
-              onSelectProfile={selectPointByBioId}
-              onClose={() => setSelectedPoint(null)}
-            />,
-            uiShellNode
-          )
-        ) : (
-          <SelectedPointOverlay
-            key={selectedPoint.point.bioId}
-            selectedPoint={selectedPoint}
-            pointColorMode={pointColorMode}
-            allPoints={points}
-            exploredLocalInfo={exploredLocalInfo}
-            exploreNeighborK={exploreNeighborK}
-            onExploreNeighborKChange={updateExploreNeighborK}
-            onClearExploredSet={clearExploredLocalView}
-            onSelectProfile={selectPointByBioId}
-            onClose={() => setSelectedPoint(null)}
-          />
-        ))}
+      {typeof document !== "undefined" &&
+        selectedPointOverlay &&
+        createPortal(selectedPointOverlay, document.body)}
     </div>
 
     {chromePortals}
