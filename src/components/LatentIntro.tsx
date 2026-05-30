@@ -1469,31 +1469,27 @@ function useSidewaysMobileOverlay(active: boolean): CSSProperties | null {
       const viewportH = viewport?.height ?? window.innerHeight;
       const offsetTop = viewport?.offsetTop ?? 0;
       const offsetLeft = viewport?.offsetLeft ?? 0;
-      const isPortrait = viewportH >= viewportW;
-
-      if (!isPortrait) {
-        setFrameStyle(null);
-        return;
-      }
 
       setFrameStyle({
         position: "fixed",
-        top: offsetTop + viewportH / 2,
-        left: offsetLeft + viewportW / 2,
-        width: viewportH,
-        height: viewportW,
-        maxWidth: viewportH,
-        maxHeight: viewportW,
+        top: offsetTop,
+        left: offsetLeft,
+        width: viewportW,
+        height: viewportH,
+        maxWidth: viewportW,
+        maxHeight: viewportH,
         margin: 0,
-        padding: 8,
+        paddingTop: "max(8px, env(safe-area-inset-top))",
+        paddingRight: "max(8px, env(safe-area-inset-right))",
+        paddingBottom: "max(8px, env(safe-area-inset-bottom))",
+        paddingLeft: "max(8px, env(safe-area-inset-left))",
         boxSizing: "border-box",
-        transform: "translate(-50%, -50%) rotate(90deg)",
-        WebkitTransform: "translate(-50%, -50%) rotate(90deg)",
-        transformOrigin: "center center",
+        transform: "none",
+        WebkitTransform: "none",
         zIndex: 99999,
         overflow: "hidden",
         display: "flex",
-        alignItems: "center",
+        alignItems: "stretch",
         justifyContent: "center",
         background: "rgba(243, 248, 255, 0.97)",
         pointerEvents: "auto",
