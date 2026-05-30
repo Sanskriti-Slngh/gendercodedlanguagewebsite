@@ -4513,361 +4513,515 @@
   }
 }
 
-/* ---------- mobile-like devices: sideways portrait layout + visible banner ---------- */
+/* =========================================================
+   TRUE MOBILE VERTICAL LAYOUT
+   Map on top, controls below, no sideways rotation.
+   Paste at the VERY BOTTOM of src/App.css.
+   ========================================================= */
 
-.home-ui-shell {
-  position: relative;
-  z-index: 3;
-  pointer-events: none;
-}
-
-/* Only interactive panels capture touches — never the full-screen intro layer. */
-.home-ui-shell .explore-sidebar,
-.home-ui-shell .view-controls,
-.home-ui-shell .gender-legend,
-.home-ui-shell .recompute-controls,
-.home-ui-shell .device-warning,
-.home-ui-shell .faq-overlay {
-  pointer-events: auto;
-}
-
-.home-ui-shell .intro-content,
-.home-ui-shell .intro-content * {
-  pointer-events: none !important;
-}
-
-.home-page.is-mobile-like .device-warning {
-  top: auto;
-  bottom: max(12px, env(safe-area-inset-bottom, 0px));
-  z-index: 30;
-  border-radius: 16px;
-  padding: 9px 12px;
-  font-size: 0.78rem;
-  line-height: 1.22;
-}
-
-.home-page.is-mobile-like.has-selected-point .device-warning {
-  opacity: 0.94;
-}
-
-@media (orientation: portrait) {
-  .home-page.is-mobile-like .entrance-overlay {
-    width: 100svh;
-    height: 100svw;
-    inset: auto;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(90deg);
-    padding: clamp(8px, 1.8vmin, 16px);
-    overflow: auto;
-    align-items: center;
-    justify-content: center;
+   @media (max-width: 760px), (hover: none) and (pointer: coarse) {
+    html,
+    body,
+    #root {
+      width: 100%;
+      min-height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+  
+    body {
+      overscroll-behavior-y: none;
+    }
+  
+    .home-page {
+      min-height: 100svh;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+  
+    /* Do NOT rotate mobile entrance or intro screens. */
+    .home-page.is-mobile-like .entrance-overlay,
+    .home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .intro-content {
+      position: fixed !important;
+      inset: 0 !important;
+      width: auto !important;
+      height: auto !important;
+      top: auto !important;
+      left: auto !important;
+      transform: none !important;
+    }
+  
+    .home-page.is-mobile-like .entrance-overlay {
+      padding: 14px !important;
+      align-items: center !important;
+      justify-content: center !important;
+      overflow-y: auto !important;
+    }
+  
+    .home-page.is-mobile-like .entrance-card {
+      width: min(94vw, 520px) !important;
+      max-height: calc(100svh - 28px) !important;
+      overflow-y: auto !important;
+      padding: 18px !important;
+    }
+  
+    .home-page.is-mobile-like .entrance-title {
+      font-size: clamp(2.8rem, 13vw, 4.4rem) !important;
+    }
+  
+    .home-page.is-mobile-like .entrance-purpose {
+      font-size: 1rem !important;
+      line-height: 1.25 !important;
+    }
+  
+    .home-page.is-mobile-like .entrance-mini-grid {
+      grid-template-columns: 1fr !important;
+      gap: 10px !important;
+    }
+  
+    /* Before entering: normal centered title. */
+    .home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .intro-content {
+      display: flex !important;
+      padding: 24px !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+  
+    .home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .site-title-center {
+      width: min(92vw, 520px) !important;
+      font-size: clamp(3rem, 15vw, 5rem) !important;
+      line-height: 0.9 !important;
+    }
+  
+    .home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .click-hint {
+      font-size: 1rem !important;
+      margin-top: 28px !important;
+    }
+  
+    /* After entering: convert the whole UI into a vertical page. */
+    .home-page.is-mobile-like.is-entered {
+      display: block;
+      min-height: 100svh;
+      padding-top: 46svh;
+      padding-bottom: max(18px, env(safe-area-inset-bottom, 0px));
+      background:
+        linear-gradient(
+          180deg,
+          rgba(243, 248, 255, 0.1) 0%,
+          rgba(243, 248, 255, 0.98) 44svh,
+          rgba(243, 248, 255, 1) 100%
+        );
+    }
+  
+    /* The point cloud becomes the top visual area. */
+    .home-page.is-mobile-like.is-entered .latent-stage {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: auto !important;
+      height: 44svh !important;
+      z-index: 0 !important;
+      pointer-events: auto !important;
+      touch-action: none !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .latent-stage canvas {
+      height: 44svh !important;
+    }
+  
+    /* Small title over the map. */
+    .home-page.is-mobile-like.is-entered .site-title-corner {
+      position: fixed !important;
+      top: max(12px, env(safe-area-inset-top, 0px)) !important;
+      left: 14px !important;
+      z-index: 30 !important;
+      max-width: 70vw !important;
+      font-size: clamp(1.1rem, 5.5vw, 1.6rem) !important;
+      line-height: 0.95 !important;
+      opacity: 0.95 !important;
+      transform: none !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .intro-content {
+      position: fixed !important;
+      inset: 0 !important;
+      pointer-events: none !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .site-title-center,
+    .home-page.is-mobile-like.is-entered .click-hint {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  
+    /* This becomes the vertical content stack below the map. */
+    .home-page.is-mobile-like.is-entered .home-ui-shell {
+      position: relative !important;
+      z-index: 10 !important;
+  
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 12px !important;
+  
+      width: 100% !important;
+      padding: 0 12px 18px !important;
+      pointer-events: auto !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .home-ui-shell > * {
+      pointer-events: auto !important;
+    }
+  
+    /* Raw / Local controls become the first card below the map. */
+    .home-page.is-mobile-like.is-entered .view-controls {
+      position: relative !important;
+      top: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      left: auto !important;
+  
+      order: 1 !important;
+      width: 100% !important;
+      max-width: none !important;
+  
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 8px !important;
+  
+      padding: 10px !important;
+      border-radius: 22px !important;
+      background: rgba(255, 255, 255, 0.94) !important;
+      opacity: 1 !important;
+      transform: none !important;
+      z-index: auto !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .view-toggle-row {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 8px !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .view-controls button {
+      width: 100% !important;
+      min-height: 42px !important;
+      padding: 9px 10px !important;
+      font-size: 0.95rem !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .view-mode-note {
+      max-width: none !important;
+      font-size: 0.82rem !important;
+      line-height: 1.25 !important;
+      text-align: center !important;
+    }
+  
+    /* Explore becomes a normal vertical card. */
+    .home-page.is-mobile-like.is-entered .explore-sidebar {
+      position: relative !important;
+      top: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      left: auto !important;
+  
+      order: 2 !important;
+      width: 100% !important;
+      max-width: none !important;
+  
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+  
+      opacity: 1 !important;
+      transform: none !important;
+      z-index: auto !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .faq-floating-button {
+      width: fit-content !important;
+      max-width: 100% !important;
+      padding: 10px 14px !important;
+      border-radius: 999px !important;
+      font-size: 1rem !important;
+      line-height: 1.1 !important;
+      background: rgba(255, 255, 255, 0.94) !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .explore-filters {
+      width: 100% !important;
+      max-height: none !important;
+      overflow: visible !important;
+  
+      padding: 14px !important;
+      border-radius: 24px !important;
+      gap: 12px !important;
+  
+      background: rgba(255, 255, 255, 0.95) !important;
+      opacity: 1 !important;
+      backdrop-filter: blur(18px) !important;
+      box-shadow: 0 18px 50px rgba(7, 31, 69, 0.12) !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .filter-header {
+      align-items: flex-start !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .filter-title {
+      font-size: 1.25rem !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .filter-count {
+      font-size: 0.86rem !important;
+      padding: 6px 9px !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .filter-label {
+      font-size: 0.95rem !important;
+      gap: 7px !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .filter-label input,
+    .home-page.is-mobile-like.is-entered .filter-label select {
+      min-height: 44px !important;
+      font-size: 16px !important;
+      padding: 10px 13px !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .filter-search-help {
+      font-size: 0.84rem !important;
+      line-height: 1.25 !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .filter-search-actions {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 8px !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .filter-search-button {
+      min-height: 40px !important;
+      padding: 9px 10px !important;
+      font-size: 0.95rem !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .gender-filter-buttons {
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 8px !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .gender-filter-buttons button,
+    .home-page.is-mobile-like.is-entered .clear-filters-button,
+    .home-page.is-mobile-like.is-entered .filter-chip,
+    .home-page.is-mobile-like.is-entered .selected-filter-chip,
+    .home-page.is-mobile-like.is-entered .option-chip,
+    .home-page.is-mobile-like.is-entered .bucket-filter-chip {
+      min-height: 38px !important;
+      padding: 8px 11px !important;
+      font-size: 0.95rem !important;
+      line-height: 1.1 !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .option-chip-grid,
+    .home-page.is-mobile-like.is-entered .bucket-chip-grid {
+      max-height: none !important;
+      overflow: visible !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .bucket-filter-chip {
+      border-radius: 18px !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .bucket-filter-preview {
+      display: none !important;
+    }
+  
+    /* Recompute becomes the next vertical card. */
+    .home-page.is-mobile-like.is-entered .recompute-controls {
+      position: relative !important;
+      top: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      left: auto !important;
+  
+      order: 3 !important;
+      width: 100% !important;
+      max-width: none !important;
+  
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+  
+      padding: 14px !important;
+      border-radius: 24px !important;
+      background: rgba(255, 255, 255, 0.95) !important;
+      opacity: 1 !important;
+      transform: none !important;
+      z-index: auto !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .recompute-title {
+      font-size: 1.08rem !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .recompute-header p {
+      margin-top: 4px !important;
+      font-size: 0.88rem !important;
+      line-height: 1.25 !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .recompute-k-label {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 10px !important;
+      font-size: 0.95rem !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .recompute-k-label input {
+      width: 72px !important;
+      min-height: 40px !important;
+      font-size: 16px !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .recompute-actions {
+      display: grid !important;
+      grid-template-columns: 1fr 0.45fr !important;
+      gap: 8px !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .recompute-actions button {
+      min-height: 40px !important;
+      padding: 9px 10px !important;
+      font-size: 0.9rem !important;
+      line-height: 1.1 !important;
+    }
+  
+    .home-page.is-mobile-like.is-entered .recompute-status {
+      font-size: 0.86rem !important;
+      line-height: 1.2 !important;
+    }
+  
+    /* Warning becomes the final normal card, not a fixed overlay. */
+    .home-page.is-mobile-like.is-entered .device-warning {
+      position: relative !important;
+      top: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      left: auto !important;
+      transform: none !important;
+  
+      order: 4 !important;
+      width: 100% !important;
+      max-width: none !important;
+  
+      padding: 11px 13px !important;
+      border-radius: 18px !important;
+      font-size: 0.86rem !important;
+      line-height: 1.25 !important;
+      text-align: left !important;
+      z-index: auto !important;
+    }
+  
+    /* Legend is too expensive on phones. Raw/Local already explains color. */
+    .home-page.is-mobile-like.is-entered .gender-legend {
+      display: none !important;
+    }
+  
+    /* Selected point mode should also become vertical. */
+    .home-page.is-mobile-like.has-selected-point {
+      padding-top: 0 !important;
+    }
+  
+    .home-page.is-mobile-like.has-selected-point .latent-stage {
+      display: none !important;
+    }
+  
+    .home-page.is-mobile-like.has-selected-point .view-controls,
+    .home-page.is-mobile-like.has-selected-point .explore-sidebar,
+    .home-page.is-mobile-like.has-selected-point .recompute-controls,
+    .home-page.is-mobile-like.has-selected-point .device-warning,
+    .home-page.is-mobile-like.has-selected-point .gender-legend {
+      display: none !important;
+    }
+  
+    .home-page.is-mobile-like .selected-exhibit-overlay {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 80 !important;
+  
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch;
+  
+      display: block !important;
+      padding: max(14px, env(safe-area-inset-top, 0px)) 12px 18px !important;
+    }
+  
+    .home-page.is-mobile-like .selected-exhibit-shell {
+      width: 100% !important;
+      max-width: none !important;
+      min-height: auto !important;
+  
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 14px !important;
+    }
+  
+    .home-page.is-mobile-like .selected-circle-column {
+      width: 100% !important;
+    }
+  
+    .home-page.is-mobile-like .selected-circle-system {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: none !important;
+      aspect-ratio: auto !important;
+  
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 8px !important;
+    }
+  
+    .home-page.is-mobile-like .selected-circle-ring {
+      position: relative !important;
+      inset: auto !important;
+      grid-column: 1 / -1 !important;
+      min-height: 220px !important;
+      border-radius: 28px !important;
+    }
+  
+    .home-page.is-mobile-like .selected-circle-core {
+      position: static !important;
+      transform: none !important;
+  
+      width: 100% !important;
+      min-height: 210px !important;
+      max-height: 320px !important;
+      overflow-y: auto !important;
+  
+      border-radius: 24px !important;
+      padding: 18px !important;
+    }
+  
+    .home-page.is-mobile-like .selected-orbit-pill {
+      position: static !important;
+      transform: none !important;
+  
+      width: auto !important;
+      min-width: 0 !important;
+      max-width: none !important;
+  
+      padding: 9px 10px !important;
+      border-radius: 18px !important;
+      font-size: 0.88rem !important;
+    }
+  
+    .home-page.is-mobile-like .explanation-bar {
+      width: 100% !important;
+      max-height: none !important;
+      overflow: visible !important;
+      padding: 14px !important;
+      border-radius: 24px !important;
+    }
   }
-
-  .home-page.is-mobile-like .entrance-overlay::before {
-    inset: clamp(6px, 1.2vmin, 12px);
-    border-radius: clamp(16px, 2.5vmin, 24px);
-  }
-
-  .home-page.is-mobile-like .entrance-card {
-    width: min(94%, 940px);
-    max-height: none;
-    align-content: center;
-  }
-
-  .home-page.is-mobile-like .entrance-eyebrow {
-    margin-bottom: clamp(3px, 0.8vmin, 8px);
-    font-size: clamp(0.58rem, 2.2svh, 0.76rem);
-    letter-spacing: 0.12em;
-  }
-
-  .home-page.is-mobile-like .entrance-title {
-    font-size: clamp(1.55rem, 6.8svh, 2.45rem);
-    line-height: 0.88;
-  }
-
-  .home-page.is-mobile-like .entrance-purpose {
-    width: 100%;
-    margin-top: clamp(4px, 1vmin, 8px);
-    font-size: clamp(0.64rem, 2.5svh, 0.84rem);
-    line-height: 1.12;
-  }
-
-  .home-page.is-mobile-like .entrance-mini-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    width: 100%;
-    margin-top: clamp(6px, 1.4vmin, 10px);
-    gap: clamp(4px, 0.9vmin, 8px);
-  }
-
-  .home-page.is-mobile-like .entrance-mini-card {
-    min-height: auto;
-    padding: clamp(5px, 1vmin, 8px);
-    border-radius: clamp(12px, 1.8vmin, 16px);
-    gap: 2px;
-  }
-
-  .home-page.is-mobile-like .entrance-mini-card strong {
-    font-size: clamp(0.58rem, 2.2svh, 0.74rem);
-    line-height: 1.06;
-  }
-
-  .home-page.is-mobile-like .entrance-mini-card span {
-    font-size: clamp(0.52rem, 1.9svh, 0.68rem);
-    line-height: 1.08;
-  }
-
-  .home-page.is-mobile-like .entrance-progress {
-    width: min(260px, 58%);
-    height: clamp(4px, 0.9vmin, 6px);
-    margin-top: clamp(6px, 1.2vmin, 10px);
-  }
-
-  .home-page.is-mobile-like .entrance-explore-button {
-    margin-top: clamp(6px, 1.2vmin, 10px);
-    min-width: 104px;
-    padding: clamp(5px, 1vmin, 7px) clamp(14px, 2.5vmin, 20px);
-    font-size: clamp(0.74rem, 2.4svh, 0.86rem);
-  }
-
-  .home-page.is-mobile-like .entrance-status {
-    margin-top: clamp(3px, 0.7vmin, 6px);
-    font-size: clamp(0.6rem, 2svh, 0.72rem);
-  }
-
-  .home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .intro-content {
-    inset: auto;
-    width: 100svh;
-    height: 100svw;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(90deg);
-    padding: 16px 24px;
-  }
-
-  .home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .site-title-center {
-    width: min(88%, 720px);
-    font-size: clamp(1.8rem, 9svh, 3rem);
-    line-height: 0.88;
-  }
-
-  .home-page.is-mobile-like.is-home-intro-ready:not(.is-entered) .click-hint {
-    margin-top: clamp(12px, 2.5vmin, 20px);
-    font-size: clamp(0.78rem, 2.8svh, 0.92rem);
-  }
-}
-
-/* Mobile explore UI: compact portrait panels that leave room for the map. */
-.home-page.is-mobile-like.is-entered {
-  --mobile-ui-top: 46px;
-  --mobile-ui-edge: 8px;
-}
-
-.home-page.is-mobile-like.is-entered .site-title-corner {
-  top: 10px !important;
-  left: 10px !important;
-  font-size: 0.82rem !important;
-  max-width: 46vw !important;
-}
-
-.home-page.is-mobile-like.is-entered .faq-floating-button {
-  padding: 3px 7px !important;
-  font-size: 0.58rem !important;
-  line-height: 1.05 !important;
-  box-shadow: 0 6px 16px rgba(7, 31, 69, 0.1) !important;
-}
-
-.home-page.is-mobile-like.is-entered .explore-sidebar {
-  position: fixed !important;
-  top: var(--mobile-ui-top) !important;
-  left: var(--mobile-ui-edge) !important;
-  right: auto !important;
-  bottom: auto !important;
-  width: min(158px, 42vw) !important;
-  max-width: min(158px, 42vw) !important;
-  gap: 3px !important;
-}
-
-.home-page.is-mobile-like.is-entered .explore-filters {
-  max-height: min(34vh, 250px) !important;
-  padding: 5px 6px !important;
-  gap: 3px !important;
-  border-radius: 14px !important;
-  overflow: auto !important;
-  -webkit-overflow-scrolling: touch;
-}
-
-.home-page.is-mobile-like.is-entered .filter-header {
-  gap: 4px !important;
-}
-
-.home-page.is-mobile-like.is-entered .filter-title {
-  font-size: 0.66rem !important;
-}
-
-.home-page.is-mobile-like.is-entered .filter-count {
-  font-size: 0.5rem !important;
-  padding: 1px 5px !important;
-}
-
-.home-page.is-mobile-like.is-entered .filter-label {
-  font-size: 0.5rem !important;
-  gap: 2px !important;
-}
-
-.home-page.is-mobile-like.is-entered .filter-label input,
-.home-page.is-mobile-like.is-entered .filter-label select {
-  min-height: 22px !important;
-  padding: 3px 6px !important;
-  font-size: 0.56rem !important;
-}
-
-.home-page.is-mobile-like.is-entered .filter-search-help {
-  display: none !important;
-}
-
-.home-page.is-mobile-like.is-entered .filter-search-actions {
-  gap: 3px !important;
-}
-
-.home-page.is-mobile-like.is-entered .filter-search-button {
-  padding: 3px 6px !important;
-  font-size: 0.52rem !important;
-}
-
-.home-page.is-mobile-like.is-entered .filter-section {
-  gap: 2px !important;
-}
-
-.home-page.is-mobile-like.is-entered .filter-section-title {
-  font-size: 0.5rem !important;
-  margin-bottom: 1px !important;
-}
-
-.home-page.is-mobile-like.is-entered .filter-chip-row {
-  gap: 3px !important;
-}
-
-.home-page.is-mobile-like.is-entered .filter-chip,
-.home-page.is-mobile-like.is-entered .option-chip,
-.home-page.is-mobile-like.is-entered .bucket-filter-chip {
-  padding: 2px 5px !important;
-  font-size: 0.48rem !important;
-  line-height: 1.05 !important;
-  border-radius: 999px !important;
-}
-
-.home-page.is-mobile-like.is-entered .bucket-filter-name,
-.home-page.is-mobile-like.is-entered .bucket-filter-preview,
-.home-page.is-mobile-like.is-entered .bucket-filter-lean {
-  font-size: 0.46rem !important;
-}
-
-.home-page.is-mobile-like.is-entered .clear-filters-button {
-  padding: 3px 6px !important;
-  font-size: 0.52rem !important;
-}
-
-.home-page.is-mobile-like.is-entered .recompute-controls {
-  position: fixed !important;
-  top: 38px !important;
-  right: var(--mobile-ui-edge) !important;
-  left: auto !important;
-  bottom: auto !important;
-  width: min(132px, 36vw) !important;
-  max-width: min(132px, 36vw) !important;
-  padding: 5px 6px !important;
-  gap: 3px !important;
-  border-radius: 14px !important;
-}
-
-.home-page.is-mobile-like.is-entered .recompute-title {
-  font-size: 0.58rem !important;
-}
-
-.home-page.is-mobile-like.is-entered .recompute-header p {
-  display: none !important;
-}
-
-.home-page.is-mobile-like.is-entered .recompute-status {
-  font-size: 0.46rem !important;
-  line-height: 1.08 !important;
-}
-
-.home-page.is-mobile-like.is-entered .recompute-k-label {
-  font-size: 0.48rem !important;
-  gap: 4px !important;
-}
-
-.home-page.is-mobile-like.is-entered .recompute-k-label input {
-  width: 38px !important;
-  min-height: 20px !important;
-  padding: 2px 4px !important;
-  font-size: 0.58rem !important;
-}
-
-.home-page.is-mobile-like.is-entered .recompute-actions {
-  gap: 3px !important;
-}
-
-.home-page.is-mobile-like.is-entered .recompute-actions button {
-  padding: 3px 5px !important;
-  font-size: 0.46rem !important;
-  line-height: 1.05 !important;
-}
-
-.home-page.is-mobile-like.is-entered .view-controls {
-  position: fixed !important;
-  top: 10px !important;
-  right: var(--mobile-ui-edge) !important;
-  left: auto !important;
-  bottom: auto !important;
-  width: auto !important;
-  max-width: min(118px, 32vw) !important;
-  padding: 3px 4px !important;
-  border-radius: 12px !important;
-  gap: 3px !important;
-}
-
-.home-page.is-mobile-like.is-entered .view-toggle-row {
-  gap: 3px !important;
-}
-
-.home-page.is-mobile-like.is-entered .view-controls button {
-  padding: 3px 6px !important;
-  font-size: 0.5rem !important;
-}
-
-.home-page.is-mobile-like.is-entered .view-mode-note {
-  display: none !important;
-}
-
-.home-page.is-mobile-like.is-entered .gender-legend {
-  position: fixed !important;
-  left: 50% !important;
-  right: auto !important;
-  bottom: calc(max(52px, env(safe-area-inset-bottom, 0px) + 44px)) !important;
-  top: auto !important;
-  transform: translateX(-50%) !important;
-  padding: 2px 6px !important;
-  font-size: 0.48rem !important;
-  gap: 4px !important;
-}
-
-.home-page.is-mobile-like.is-entered .gradient-bar {
-  width: 36px !important;
-}
-
-.home-page.is-mobile-like.is-entered .device-warning {
-  position: fixed !important;
-  left: var(--mobile-ui-edge) !important;
-  right: var(--mobile-ui-edge) !important;
-  bottom: max(6px, env(safe-area-inset-bottom, 0px)) !important;
-  top: auto !important;
-  transform: none !important;
-  width: auto !important;
-  padding: 4px 6px !important;
-  font-size: 0.46rem !important;
-  line-height: 1.08 !important;
-  border-radius: 10px !important;
-}
