@@ -34,6 +34,16 @@ export function getDeviceMode(): DeviceMode {
     );
   }
 
+  // Phones and tablets cannot load or render the full ~80k point dataset in
+  // mobile Safari without crashing the tab. Limit them up front — do not rely
+  // on the WebGL benchmark here (it uses too few points to predict memory use).
+  if (isMobileLikeDevice(signals)) {
+    return createLimitedDeviceMode(
+      signals,
+      "Mobile devices use a lighter version of the map to keep the page stable."
+    );
+  }
+
   if (signals.memory !== null && signals.memory <= 2) {
     return createLimitedDeviceMode(signals, LIMITED_REASON);
   }
@@ -70,6 +80,7 @@ function getDeviceSignals(): DeviceSignals {
   const nav = navigator as Navigator & {
     deviceMemory?: number;
     hardwareConcurrency?: number;
+    userAgentData?: { mobile?: boolean };
   };
 
   return {
@@ -86,6 +97,29 @@ function getDeviceSignals(): DeviceSignals {
       "(prefers-reduced-motion: reduce)"
     ).matches,
   };
+}
+
+function isMobileLikeDevice(signals: DeviceSignals): boolean {
+  if (typeof navigator === "undefined") return false;
+
+  const nav = navigator as Navigator & { userAgentData?: { mobile?: boolean } };
+  if (nav.userAgentData?.mobile === true) return true;
+
+  const ua = navigator.userAgent;
+
+  if (/iPhone|iPod|Android.*Mobile|Windows Phone/i.test(ua)) return true;
+
+  // iPad and iPadOS "desktop" mode (reports MacIntel + touch).
+  if (/iPad/i.test(ua)) return true;
+  if (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) {
+    return true;
+  }
+
+  // Touch-primary device with a phone-sized screen (not a touch laptop).
+  const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+  if (signals.isSmallScreen && coarsePointer) return true;
+
+  return false;
 }
 
 function createLimitedDeviceMode(
