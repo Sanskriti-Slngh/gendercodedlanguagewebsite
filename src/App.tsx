@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import "./App.css";
 import LatentIntro, {
   type FilterOptions,
@@ -219,25 +219,6 @@ function App() {
         ? "Loading map…"
         : "Entrance playing…";
 
-  const useMobileSidewaysShell =
-    deviceMode.isLimitedDevice && isHomeIntroReady && isEntered;
-
-  const uiShellStyle: CSSProperties | undefined = useMobileSidewaysShell
-    ? {
-        position: "fixed",
-        width: "100svh",
-        height: "100svw",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%) rotate(90deg) scale(0.72)",
-        WebkitTransform: "translate(-50%, -50%) rotate(90deg) scale(0.72)",
-        transformOrigin: "center center",
-        zIndex: 3,
-        overflow: "hidden",
-        pointerEvents: "none",
-      }
-    : undefined;
-
   return (
     <main
       className={`home-page ${isEntered ? "is-entered" : "is-intro"} ${
@@ -319,12 +300,7 @@ function App() {
         </section>
       )}
 
-      <div
-        ref={uiShellRef}
-        id="home-ui-shell"
-        className={`home-ui-shell${useMobileSidewaysShell ? " is-mobile-sideways" : ""}`}
-        style={uiShellStyle}
-      >
+      <div ref={uiShellRef} id="home-ui-shell" className="home-ui-shell">
       <section className="intro-content">
         <h1 className="site-title-center">Coded Language</h1>
 

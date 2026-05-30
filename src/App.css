@@ -4657,224 +4657,217 @@
   }
 }
 
-/* Main explore UI on phones: sideways shell + compact controls (not inside orientation query). */
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways > .explore-sidebar,
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways > .view-controls,
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways > .gender-legend,
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-controls,
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .device-warning {
-  pointer-events: auto;
+/* Mobile explore UI: compact portrait panels that leave room for the map. */
+.home-page.is-mobile-like.is-entered {
+  --mobile-ui-top: 46px;
+  --mobile-ui-edge: 8px;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .intro-content {
-  position: absolute !important;
-  inset: 0 !important;
-  pointer-events: none;
+.home-page.is-mobile-like.is-entered .site-title-corner {
+  top: 10px !important;
+  left: 10px !important;
+  font-size: 0.82rem !important;
+  max-width: 46vw !important;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .site-title-corner {
-  position: absolute !important;
-  top: 6px !important;
-  left: 8px !important;
+.home-page.is-mobile-like.is-entered .faq-floating-button {
+  padding: 3px 7px !important;
+  font-size: 0.58rem !important;
+  line-height: 1.05 !important;
+  box-shadow: 0 6px 16px rgba(7, 31, 69, 0.1) !important;
+}
+
+.home-page.is-mobile-like.is-entered .explore-sidebar {
+  position: fixed !important;
+  top: var(--mobile-ui-top) !important;
+  left: var(--mobile-ui-edge) !important;
   right: auto !important;
   bottom: auto !important;
-  max-width: 34% !important;
-  font-size: 0.78rem !important;
-  transform: none !important;
-  opacity: 1 !important;
+  width: min(158px, 42vw) !important;
+  max-width: min(158px, 42vw) !important;
+  gap: 3px !important;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .explore-sidebar {
-  position: absolute !important;
-  top: 28px !important;
-  left: 6px !important;
-  bottom: 28px !important;
-  right: auto !important;
-  width: 38% !important;
-  max-width: 38% !important;
-  transform: none !important;
-  gap: 4px !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .faq-floating-button {
-  padding: 4px 8px !important;
-  font-size: 0.62rem !important;
-  line-height: 1.1 !important;
-  box-shadow: 0 8px 20px rgba(7, 31, 69, 0.1) !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .explore-filters {
-  padding: 6px 7px !important;
-  gap: 4px !important;
+.home-page.is-mobile-like.is-entered .explore-filters {
+  max-height: min(34vh, 250px) !important;
+  padding: 5px 6px !important;
+  gap: 3px !important;
   border-radius: 14px !important;
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-title {
-  font-size: 0.72rem !important;
+.home-page.is-mobile-like.is-entered .filter-header {
+  gap: 4px !important;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-count {
-  font-size: 0.58rem !important;
-  padding: 2px 6px !important;
+.home-page.is-mobile-like.is-entered .filter-title {
+  font-size: 0.66rem !important;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-label {
-  font-size: 0.58rem !important;
+.home-page.is-mobile-like.is-entered .filter-count {
+  font-size: 0.5rem !important;
+  padding: 1px 5px !important;
+}
+
+.home-page.is-mobile-like.is-entered .filter-label {
+  font-size: 0.5rem !important;
   gap: 2px !important;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-label input,
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-label select {
-  min-height: 26px !important;
-  padding: 4px 8px !important;
-  font-size: 0.64rem !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-search-help {
-  display: none !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-search-actions {
-  gap: 4px !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-search-button {
-  padding: 4px 8px !important;
-  font-size: 0.6rem !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-section {
-  gap: 4px !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-section-title {
-  font-size: 0.58rem !important;
-  margin-bottom: 2px !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-chip-row {
-  gap: 4px !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .filter-chip {
+.home-page.is-mobile-like.is-entered .filter-label input,
+.home-page.is-mobile-like.is-entered .filter-label select {
+  min-height: 22px !important;
   padding: 3px 6px !important;
   font-size: 0.56rem !important;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .option-chip,
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .bucket-filter-chip {
-  padding: 4px 6px !important;
-  font-size: 0.54rem !important;
-  line-height: 1.08 !important;
-  border-radius: 12px !important;
+.home-page.is-mobile-like.is-entered .filter-search-help {
+  display: none !important;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .bucket-filter-name,
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .bucket-filter-preview,
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .bucket-filter-lean {
+.home-page.is-mobile-like.is-entered .filter-search-actions {
+  gap: 3px !important;
+}
+
+.home-page.is-mobile-like.is-entered .filter-search-button {
+  padding: 3px 6px !important;
   font-size: 0.52rem !important;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .clear-filters-button {
-  padding: 4px 8px !important;
-  font-size: 0.6rem !important;
+.home-page.is-mobile-like.is-entered .filter-section {
+  gap: 2px !important;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-controls {
-  position: absolute !important;
-  top: 28px !important;
-  right: 6px !important;
-  left: auto !important;
-  bottom: auto !important;
-  width: 28% !important;
-  max-width: 28% !important;
-  padding: 6px !important;
-  gap: 4px !important;
-  border-radius: 14px !important;
-  transform: none !important;
+.home-page.is-mobile-like.is-entered .filter-section-title {
+  font-size: 0.5rem !important;
+  margin-bottom: 1px !important;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-title {
-  font-size: 0.68rem !important;
+.home-page.is-mobile-like.is-entered .filter-chip-row {
+  gap: 3px !important;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-header p,
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-status {
-  font-size: 0.54rem !important;
-  line-height: 1.1 !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-k-label {
-  font-size: 0.56rem !important;
-  gap: 6px !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-k-label input {
-  width: 44px !important;
-  min-height: 24px !important;
-  padding: 3px 5px !important;
-  font-size: 0.68rem !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-actions {
-  gap: 4px !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .recompute-actions button {
-  padding: 4px 6px !important;
-  font-size: 0.54rem !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .view-controls {
-  position: absolute !important;
-  top: 4px !important;
-  right: 6px !important;
-  left: auto !important;
-  bottom: auto !important;
-  width: 24% !important;
-  max-width: 24% !important;
-  transform: none !important;
-  padding: 4px 5px !important;
-  border-radius: 12px !important;
-  gap: 4px !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .view-controls button {
-  padding: 4px 7px !important;
-  font-size: 0.58rem !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .view-mode-note {
-  display: none !important;
-}
-
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .gender-legend {
-  position: absolute !important;
-  left: 6px !important;
-  right: auto !important;
-  bottom: 6px !important;
-  top: auto !important;
-  transform: none !important;
-  padding: 3px 6px !important;
-  font-size: 0.54rem !important;
+.home-page.is-mobile-like.is-entered .filter-chip,
+.home-page.is-mobile-like.is-entered .option-chip,
+.home-page.is-mobile-like.is-entered .bucket-filter-chip {
+  padding: 2px 5px !important;
+  font-size: 0.48rem !important;
+  line-height: 1.05 !important;
   border-radius: 999px !important;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .gradient-bar {
-  width: 44px !important;
+.home-page.is-mobile-like.is-entered .bucket-filter-name,
+.home-page.is-mobile-like.is-entered .bucket-filter-preview,
+.home-page.is-mobile-like.is-entered .bucket-filter-lean {
+  font-size: 0.46rem !important;
 }
 
-.home-page.is-mobile-like.is-entered .home-ui-shell.is-mobile-sideways .device-warning {
-  position: absolute !important;
-  left: 6px !important;
-  right: 6px !important;
-  bottom: 2px !important;
+.home-page.is-mobile-like.is-entered .clear-filters-button {
+  padding: 3px 6px !important;
+  font-size: 0.52rem !important;
+}
+
+.home-page.is-mobile-like.is-entered .recompute-controls {
+  position: fixed !important;
+  top: 38px !important;
+  right: var(--mobile-ui-edge) !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: min(132px, 36vw) !important;
+  max-width: min(132px, 36vw) !important;
+  padding: 5px 6px !important;
+  gap: 3px !important;
+  border-radius: 14px !important;
+}
+
+.home-page.is-mobile-like.is-entered .recompute-title {
+  font-size: 0.58rem !important;
+}
+
+.home-page.is-mobile-like.is-entered .recompute-header p {
+  display: none !important;
+}
+
+.home-page.is-mobile-like.is-entered .recompute-status {
+  font-size: 0.46rem !important;
+  line-height: 1.08 !important;
+}
+
+.home-page.is-mobile-like.is-entered .recompute-k-label {
+  font-size: 0.48rem !important;
+  gap: 4px !important;
+}
+
+.home-page.is-mobile-like.is-entered .recompute-k-label input {
+  width: 38px !important;
+  min-height: 20px !important;
+  padding: 2px 4px !important;
+  font-size: 0.58rem !important;
+}
+
+.home-page.is-mobile-like.is-entered .recompute-actions {
+  gap: 3px !important;
+}
+
+.home-page.is-mobile-like.is-entered .recompute-actions button {
+  padding: 3px 5px !important;
+  font-size: 0.46rem !important;
+  line-height: 1.05 !important;
+}
+
+.home-page.is-mobile-like.is-entered .view-controls {
+  position: fixed !important;
+  top: 10px !important;
+  right: var(--mobile-ui-edge) !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: auto !important;
+  max-width: min(118px, 32vw) !important;
+  padding: 3px 4px !important;
+  border-radius: 12px !important;
+  gap: 3px !important;
+}
+
+.home-page.is-mobile-like.is-entered .view-toggle-row {
+  gap: 3px !important;
+}
+
+.home-page.is-mobile-like.is-entered .view-controls button {
+  padding: 3px 6px !important;
+  font-size: 0.5rem !important;
+}
+
+.home-page.is-mobile-like.is-entered .view-mode-note {
+  display: none !important;
+}
+
+.home-page.is-mobile-like.is-entered .gender-legend {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: calc(max(52px, env(safe-area-inset-bottom, 0px) + 44px)) !important;
+  top: auto !important;
+  transform: translateX(-50%) !important;
+  padding: 2px 6px !important;
+  font-size: 0.48rem !important;
+  gap: 4px !important;
+}
+
+.home-page.is-mobile-like.is-entered .gradient-bar {
+  width: 36px !important;
+}
+
+.home-page.is-mobile-like.is-entered .device-warning {
+  position: fixed !important;
+  left: var(--mobile-ui-edge) !important;
+  right: var(--mobile-ui-edge) !important;
+  bottom: max(6px, env(safe-area-inset-bottom, 0px)) !important;
   top: auto !important;
   transform: none !important;
   width: auto !important;
-  max-width: none !important;
   padding: 4px 6px !important;
-  font-size: 0.5rem !important;
-  line-height: 1.1 !important;
+  font-size: 0.46rem !important;
+  line-height: 1.08 !important;
   border-radius: 10px !important;
 }
