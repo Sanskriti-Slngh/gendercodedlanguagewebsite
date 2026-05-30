@@ -1454,74 +1454,72 @@ function SimilarProfileList({ profiles, points, onSelectProfile }: { profiles: S
   );
 }
 
-function useSidewaysMobileOverlay(active: boolean) {
-  const overlayRef = useRef<HTMLDivElement>(null);
+function useSidewaysMobileOverlay(active: boolean): CSSProperties | null {
+  const [frameStyle, setFrameStyle] = useState<CSSProperties | null>(null);
 
   useLayoutEffect(() => {
-    if (!active) return undefined;
+    if (!active) {
+      setFrameStyle(null);
+      return undefined;
+    }
 
-    const applySidewaysLayout = () => {
-      const el = overlayRef.current;
-      if (!el) return;
-
-      const viewportW = window.innerWidth;
-      const viewportH = window.innerHeight;
+    const update = () => {
+      const viewport = window.visualViewport;
+      const viewportW = viewport?.width ?? window.innerWidth;
+      const viewportH = viewport?.height ?? window.innerHeight;
+      const offsetTop = viewport?.offsetTop ?? 0;
+      const offsetLeft = viewport?.offsetLeft ?? 0;
       const isPortrait = viewportH >= viewportW;
 
       if (!isPortrait) {
-        el.style.removeProperty("width");
-        el.style.removeProperty("height");
-        el.style.removeProperty("max-width");
-        el.style.removeProperty("max-height");
-        el.style.removeProperty("transform");
-        el.style.removeProperty("-webkit-transform");
+        setFrameStyle(null);
         return;
       }
 
-      el.style.setProperty("position", "fixed", "important");
-      el.style.setProperty("top", "50%", "important");
-      el.style.setProperty("left", "50%", "important");
-      el.style.setProperty("inset", "auto", "important");
-      el.style.setProperty("width", `${viewportH}px`, "important");
-      el.style.setProperty("height", `${viewportW}px`, "important");
-      el.style.setProperty("max-width", `${viewportH}px`, "important");
-      el.style.setProperty("max-height", `${viewportW}px`, "important");
-      el.style.setProperty("margin", "0", "important");
-      el.style.setProperty(
-        "transform",
-        "translate(-50%, -50%) rotate(90deg)",
-        "important"
-      );
-      el.style.setProperty(
-        "-webkit-transform",
-        "translate(-50%, -50%) rotate(90deg)",
-        "important"
-      );
-      el.style.setProperty("transform-origin", "center center", "important");
-      el.style.setProperty("z-index", "99999", "important");
-      el.style.setProperty("overflow", "hidden", "important");
-      el.style.setProperty("display", "flex", "important");
-      el.style.setProperty("align-items", "center", "important");
-      el.style.setProperty("justify-content", "center", "important");
-      el.style.setProperty("padding", "8px", "important");
-      el.style.setProperty("background", "rgba(243, 248, 255, 0.97)", "important");
-      el.style.setProperty("pointer-events", "auto", "important");
+      setFrameStyle({
+        position: "fixed",
+        top: offsetTop + viewportH / 2,
+        left: offsetLeft + viewportW / 2,
+        width: viewportH,
+        height: viewportW,
+        maxWidth: viewportH,
+        maxHeight: viewportW,
+        margin: 0,
+        padding: 8,
+        boxSizing: "border-box",
+        transform: "translate(-50%, -50%) rotate(90deg)",
+        WebkitTransform: "translate(-50%, -50%) rotate(90deg)",
+        transformOrigin: "center center",
+        zIndex: 99999,
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(243, 248, 255, 0.97)",
+        pointerEvents: "auto",
+      });
     };
 
-    applySidewaysLayout();
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("orientationchange", update);
+    window.visualViewport?.addEventListener("resize", update);
+    window.visualViewport?.addEventListener("scroll", update);
 
-    window.addEventListener("resize", applySidewaysLayout);
-    window.addEventListener("orientationchange", applySidewaysLayout);
-    const timer = window.setTimeout(applySidewaysLayout, 150);
+    const timerA = window.setTimeout(update, 100);
+    const timerB = window.setTimeout(update, 350);
 
     return () => {
-      window.clearTimeout(timer);
-      window.removeEventListener("resize", applySidewaysLayout);
-      window.removeEventListener("orientationchange", applySidewaysLayout);
+      window.clearTimeout(timerA);
+      window.clearTimeout(timerB);
+      window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
+      window.visualViewport?.removeEventListener("resize", update);
+      window.visualViewport?.removeEventListener("scroll", update);
     };
   }, [active]);
 
-  return overlayRef;
+  return frameStyle;
 }
 
 function CirclePill({ label, value, panel, activePanel, setActivePanel }: { label: string; value: string; panel: SelectedCirclePanel; activePanel: SelectedCirclePanel; setActivePanel: (p: SelectedCirclePanel) => void }) {
@@ -1644,13 +1642,12 @@ function SelectedPointOverlay({
   const mapLean = mapLeanDisplay(point.frameInfo?.predictedMapLean || patternLabel);
   const labelChip = genderText ? `${cleanDisplayValue(genderText)}-labeled` : "Label unavailable";
   const similarProfiles = point.frameInfo?.similarProfiles ?? [];
-  const sidewaysOverlayRef = useSidewaysMobileOverlay(isMobileSideways);
+  const sidewaysFrameStyle = useSidewaysMobileOverlay(isMobileSideways);
 
   return (
     <div
-      ref={sidewaysOverlayRef}
       className={`selected-exhibit-overlay${isMobileSideways ? " is-mobile-sideways-exhibit" : ""}`}
-      style={overlayStyle}
+      style={{ ...overlayStyle, ...(sidewaysFrameStyle ?? {}) }}
       onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
