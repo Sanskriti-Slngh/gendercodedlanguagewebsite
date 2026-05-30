@@ -5179,52 +5179,32 @@ z-index: 10 !important;
 }
 
 /* =========================================================
-   FIX: Selected point overlay should also be horizontal on mobile.
-   The map stays normal, but the clicked-point info rotates sideways.
-   Paste at the VERY BOTTOM of src/App.css.
+   FIX SELECTED POINT MOBILE SIDEWAYS LAYOUT
+   Selected overlay is now portaled into the already-rotated home-ui-shell.
+   Do NOT rotate it again.
    ========================================================= */
 
    @media (max-width: 760px) and (orientation: portrait),
    (hover: none) and (pointer: coarse) and (orientation: portrait) {
-/* Hide normal mobile controls while a point is open. */
 .home-page.is-mobile-like.has-selected-point .home-ui-shell {
+z-index: 140 !important;
 pointer-events: none !important;
 }
 
-.home-page.is-mobile-like.has-selected-point .view-controls,
-.home-page.is-mobile-like.has-selected-point .explore-sidebar,
-.home-page.is-mobile-like.has-selected-point .recompute-controls,
-.home-page.is-mobile-like.has-selected-point .device-warning,
-.home-page.is-mobile-like.has-selected-point .gender-legend,
-.home-page.is-mobile-like.has-selected-point .site-title-corner {
+.home-page.is-mobile-like.has-selected-point .home-ui-shell > :not(.selected-exhibit-overlay) {
 display: none !important;
 }
 
-/* Keep the map itself unrotated so dots do not stretch. */
-.home-page.is-mobile-like.has-selected-point .latent-stage {
-position: fixed !important;
-inset: 0 !important;
-width: 100dvw !important;
-height: 100dvh !important;
-transform: none !important;
-overflow: hidden !important;
-}
-
-/* Rotate ONLY the selected-point overlay. */
 .home-page.is-mobile-like.has-selected-point .selected-exhibit-overlay {
-position: fixed !important;
-inset: auto !important;
+position: absolute !important;
+inset: 0 !important;
 
-top: 50% !important;
-left: 50% !important;
+width: 100% !important;
+height: 100% !important;
 
-width: 100dvh !important;
-height: 100dvw !important;
-
-transform: translate(-50%, -50%) rotate(90deg) !important;
+transform: none !important;
 transform-origin: center center !important;
 
-z-index: 120 !important;
 display: flex !important;
 align-items: center !important;
 justify-content: center !important;
@@ -5232,35 +5212,39 @@ justify-content: center !important;
 overflow: hidden !important;
 padding: 10px !important;
 
-background: rgba(243, 248, 255, 0.86) !important;
+z-index: 200 !important;
+pointer-events: auto !important;
+
+background: rgba(243, 248, 255, 0.9) !important;
 backdrop-filter: blur(8px) !important;
 }
 
-/* Landscape split layout inside the rotated overlay. */
 .home-page.is-mobile-like.has-selected-point .selected-exhibit-shell {
-width: calc(100dvh - 20px) !important;
-height: calc(100dvw - 20px) !important;
+width: 100% !important;
+height: 100% !important;
 max-width: none !important;
 max-height: none !important;
 
 display: grid !important;
-grid-template-columns: minmax(260px, 0.9fr) minmax(330px, 1.1fr) !important;
-gap: 12px !important;
+grid-template-columns: minmax(250px, 0.78fr) minmax(330px, 1.22fr) !important;
+gap: 10px !important;
 align-items: center !important;
 
 overflow: hidden !important;
+animation: none !important;
 }
 
 .home-page.is-mobile-like.has-selected-point .selected-circle-column {
 width: 100% !important;
-min-width: 0 !important;
 height: 100% !important;
+min-width: 0 !important;
 
 display: flex !important;
 align-items: center !important;
 justify-content: center !important;
 
 overflow: visible !important;
+animation: none !important;
 }
 
 .home-page.is-mobile-like.has-selected-point .selected-close-button {
@@ -5270,23 +5254,22 @@ left: 8px !important;
 right: auto !important;
 
 transform: none !important;
-z-index: 150 !important;
+z-index: 220 !important;
 
 padding: 7px 13px !important;
-font-size: 0.8rem !important;
+font-size: 0.82rem !important;
 line-height: 1 !important;
 }
 
-/* Make the circle fit the rotated landscape space. */
 .home-page.is-mobile-like.has-selected-point .selected-circle-system {
 position: relative !important;
 
-width: min(280px, 37dvh) !important;
-min-width: 250px !important;
-max-width: 280px !important;
+width: min(290px, 38dvh) !important;
+min-width: 245px !important;
+max-width: 290px !important;
 
 aspect-ratio: 1 / 1 !important;
-margin: 28px 0 0 !important;
+margin: 26px 0 0 !important;
 
 display: block !important;
 overflow: visible !important;
@@ -5294,8 +5277,8 @@ overflow: visible !important;
 
 .home-page.is-mobile-like.has-selected-point .selected-circle-ring {
 position: absolute !important;
-inset: 15% !important;
-grid-column: auto !important;
+inset: 16% !important;
+
 min-height: 0 !important;
 border-radius: 999px !important;
 }
@@ -5309,17 +5292,13 @@ height: auto !important;
 min-height: 0 !important;
 max-height: none !important;
 
-display: flex !important;
-align-items: center !important;
-justify-content: center !important;
-
 overflow: auto !important;
 border-radius: 999px !important;
 padding: 13px !important;
 }
 
 .home-page.is-mobile-like.has-selected-point .selected-circle-core h2 {
-font-size: 0.98rem !important;
+font-size: 1rem !important;
 line-height: 1 !important;
 margin-bottom: 4px !important;
 }
@@ -5327,7 +5306,7 @@ margin-bottom: 4px !important;
 .home-page.is-mobile-like.has-selected-point .selected-circle-core p,
 .home-page.is-mobile-like.has-selected-point .selected-circle-core a,
 .home-page.is-mobile-like.has-selected-point .selected-circle-scroll {
-font-size: 0.68rem !important;
+font-size: 0.7rem !important;
 line-height: 1.1 !important;
 }
 
@@ -5337,7 +5316,6 @@ padding: 6px !important;
 border-radius: 12px !important;
 }
 
-/* Restore orbit positions after older mobile CSS turned them into a grid. */
 .home-page.is-mobile-like.has-selected-point .selected-orbit-pill {
 position: absolute !important;
 
@@ -5415,11 +5393,10 @@ right: auto !important;
 transform: none !important;
 }
 
-/* Explanation panel on the right side. */
 .home-page.is-mobile-like.has-selected-point .explanation-bar {
 width: 100% !important;
-max-width: none !important;
 height: 100% !important;
+max-width: none !important;
 max-height: none !important;
 
 overflow-y: auto !important;
@@ -5486,19 +5463,5 @@ gap: 7px !important;
 .home-page.is-mobile-like.has-selected-point .phrase-chip {
 font-size: 0.66rem !important;
 padding: 5px 7px !important;
-}
-
-.home-page.is-mobile-like.has-selected-point .similar-profile-strip h3 {
-font-size: 0.9rem !important;
-}
-
-.home-page.is-mobile-like.has-selected-point .similar-profile-strip p,
-.home-page.is-mobile-like.has-selected-point .similar-profile-chip {
-font-size: 0.68rem !important;
-line-height: 1.1 !important;
-}
-
-.home-page.is-mobile-like.has-selected-point .similar-profile-list {
-gap: 6px !important;
 }
 }

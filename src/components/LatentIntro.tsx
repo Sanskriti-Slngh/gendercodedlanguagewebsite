@@ -2361,20 +2361,37 @@ export default function LatentIntro({
         />
       </Canvas>
 
-      {selectedPoint && (
-        <SelectedPointOverlay
-          key={selectedPoint.point.bioId}
-          selectedPoint={selectedPoint}
-          pointColorMode={pointColorMode}
-          allPoints={points}
-          exploredLocalInfo={exploredLocalInfo}
-          exploreNeighborK={exploreNeighborK}
-          onExploreNeighborKChange={updateExploreNeighborK}
-          onClearExploredSet={clearExploredLocalView}
-          onSelectProfile={selectPointByBioId}
-          onClose={() => setSelectedPoint(null)}
-        />
-      )}
+      {selectedPoint &&
+        (uiShellNode ? (
+          createPortal(
+            <SelectedPointOverlay
+              key={selectedPoint.point.bioId}
+              selectedPoint={selectedPoint}
+              pointColorMode={pointColorMode}
+              allPoints={points}
+              exploredLocalInfo={exploredLocalInfo}
+              exploreNeighborK={exploreNeighborK}
+              onExploreNeighborKChange={updateExploreNeighborK}
+              onClearExploredSet={clearExploredLocalView}
+              onSelectProfile={selectPointByBioId}
+              onClose={() => setSelectedPoint(null)}
+            />,
+            uiShellNode
+          )
+        ) : (
+          <SelectedPointOverlay
+            key={selectedPoint.point.bioId}
+            selectedPoint={selectedPoint}
+            pointColorMode={pointColorMode}
+            allPoints={points}
+            exploredLocalInfo={exploredLocalInfo}
+            exploreNeighborK={exploreNeighborK}
+            onExploreNeighborKChange={updateExploreNeighborK}
+            onClearExploredSet={clearExploredLocalView}
+            onSelectProfile={selectPointByBioId}
+            onClose={() => setSelectedPoint(null)}
+          />
+        ))}
     </div>
 
     {chromePortals}
